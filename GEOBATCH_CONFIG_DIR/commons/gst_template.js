@@ -6,11 +6,12 @@
   },
   "defaultSourceType":"gxp_wmssource",
   "isLoadedFromConfigFile":true,
+  "appType":"private",
   "map":{                   
     "plugins": [
     {
         "ptype": "gxp_loadingindicator",
-        "onlyShowOnFirstLoad": false
+        "onlyShowOnFirstLoad": true
     }
     ],
     "layoutConfig": {
@@ -75,112 +76,15 @@
            "source":"google",
            "title":"Google Terrain",
            "visibility":true
-        }	,{
-           "format":"image/png",
-           "group":"RADAR CAPPI",
-           "name":"RADAR:CAPPI",
-           "opacity":0.7,
-           "selected":false,
-           "source":"RADAR", 
-           "styles":["CAPPI_2000.0"],
-           "title":"CAPPI_2000.0",
-           "transparent":true,
-           "uuid":"ff6970ed-f409-4a8e-9ce7-85554d45a62e",
-           "visibility":false,
-           "ratio":1,
-           "srs":"EPSG:900913",
-           "transitionEffect":"resize",
-           "elevation":"2000.0"
-	}
-	,{
-           "format":"image/png",
-           "group":"RADAR CAPPI",
-           "name":"RADAR:CAPPI",
-           "opacity":0.7,
-           "selected":false,
-           "source":"RADAR", 
-           "styles":["CAPPI_3000.0"],
-           "title":"CAPPI_3000.0",
-           "transparent":true,
-           "uuid":"ff6970ed-f409-4a8e-9ce7-85554d45a62e",
-           "visibility":false,
-           "ratio":1,
-           "srs":"EPSG:900913",
-           "transitionEffect":"resize",
-           "elevation":"3000.0"
-	}
-	,{
-           "format":"image/png",
-           "group":"RADAR CAPPI",
-           "name":"RADAR:CAPPI",
-           "opacity":0.7,
-           "selected":false,
-           "source":"RADAR", 
-           "styles":["CAPPI_5000.0"],
-           "title":"CAPPI_5000.0",
-           "transparent":true,
-           "uuid":"ff6970ed-f409-4a8e-9ce7-85554d45a62e",
-           "visibility":false,
-           "ratio":1,
-           "srs":"EPSG:900913",
-           "transitionEffect":"resize",
-           "elevation":"5000.0"
-	}
+        }
 
-	,{
-	   "format":"image/png",
-           "group":"RADAR SRI",
-           "name":"RADAR:SRI",
-           "opacity":0.7,
-           "selected":false,
-           "source":"RADAR", 
-           "styles":["SRI"],
-           "title":"SRI",
-           "transparent":true,
-           "uuid":"bd08cc8b-0d45-485c-9faa-74264376bb0f",
-           "visibility":false,
-           "ratio":1,
-           "srs":"EPSG:900913",
-           "transitionEffect":"resize"
-	}
-
-	,{
-	   "format":"image/png",
-           "group":"RADAR SRT",
-           "name":"RADAR:SRT",
-           "opacity":0.7,
-           "selected":false,
-           "source":"RADAR", 
-           "styles":["SRT"],
-           "title":"SRT",
-           "transparent":true,
-           "uuid":"e96febb2-83cd-42a9-942a-cee6b0865351",
-           "visibility":false,
-           "ratio":1,
-           "srs":"EPSG:900913",
-           "transitionEffect":"resize"
-	}
-
-	,{
-	   "format":"image/png",
-           "group":"RADAR VMI",
-           "name":"RADAR:VMI",
-           "opacity":0.7,
-           "selected":false,
-           "source":"RADAR", 
-           "styles":["VMI"],
-           "title":"VMI",
-           "transparent":true,
-           "uuid":"72ef8ff1-1506-49ae-95ad-7c229f3f282c",
-           "visibility":false,
-           "ratio":1,
-           "srs":"EPSG:900913",
-       },
+	,
         {
             "format":"image/png",
             "group":"MSG1",
             "name":"MSG1:MSG1_Channel_05",
-            "opacity":0.7,"selected":false,
+            "opacity":1,
+            "selected":false,
             "source":"MSG1",
             "styles":["raster"],
             "title":"MSG1 MSG1_Channel_05",
@@ -194,7 +98,7 @@
             "format":"image/png",
             "group":"MSG1",
             "name":"MSG1:MSG1_Channel_06",
-            "opacity":0.7,
+            "opacity":1,
             "selected":false,
             "source":"MSG1",
             "styles":["raster"],
@@ -209,7 +113,7 @@
             "format":"image/png",
             "group":"MSG1",
             "name":"MSG1:MSG1_Channel_09",
-            "opacity":0.7,
+            "opacity":1,
             "selected":false,
             "source":"MSG1",
             "styles":["raster"],
@@ -224,7 +128,7 @@
             "format":"image/png",
             "group":"MSG1",
             "name":"MSG1:MSG1_Channel_12",
-            "opacity":0.7,
+            "opacity":1,
             "selected":false,
             "source":"MSG1",
             "styles":["raster"],
@@ -240,7 +144,7 @@
             "format":"image/png",
             "group":"MSG2",
             "name":"MSG2:MSG2_Airmass",
-            "opacity":0.7,
+            "opacity":1,
             "selected":false,
             "source":"MSG2",
             "styles":["raster"],
@@ -255,7 +159,7 @@
             "format":"image/png",
             "group":"MSG2",
             "name":"MSG2:MSG2_NatColours",
-            "opacity":0.7,
+            "opacity":1,
             "selected":false,
             "source":"MSG2",
             "styles":["raster"],
@@ -270,7 +174,7 @@
             "format":"image/png",
             "group":"MSG2",
             "name":"MSG2:MSG2_Dust",
-            "opacity":0.7,
+            "opacity":1,
             "selected":false,
             "source":"MSG2",
             "styles":["raster"],
@@ -285,7 +189,7 @@
             "format":"image/png",
             "group":"MSG2",
             "name":"MSG2:MSG2_Channel_05",
-            "opacity":0.7,
+            "opacity":1,
             "selected":false,
             "source":"MSG2",
             "styles":["raster"],
@@ -300,7 +204,7 @@
             "format":"image/png",
             "group":"MSG2",
             "name":"MSG2:MSG2_Channel_06",
-            "opacity":0.7,
+            "opacity":1,
             "selected":false,
             "source":"MSG2",
             "styles":["raster"],
@@ -315,7 +219,7 @@
             "format":"image/png",
             "group":"MSG2",
             "name":"MSG2:MSG2_Channel_10",
-            "opacity":0.7,
+            "opacity":1,
             "selected":false,
             "source":"MSG2",
             "styles":["raster"],
@@ -326,17 +230,115 @@
             "ratio":1,
             "srs":"EPSG:900913",
             "transitionEffect":"resize"
-        }<#list event as root>
+        },{
+	   "format":"image/png8",
+           "group":"RADAR VMI",
+           "name":"RADAR:VMI",
+           "opacity":1,
+           "selected":false,
+           "source":"RADAR", 
+           "styles":["VMI"],
+           "title":"VMI",
+           "transparent":true,
+           "uuid":"72ef8ff1-1506-49ae-95ad-7c229f3f282c",
+           "visibility":false,
+           "ratio":1,
+           "srs":"EPSG:900913"
+       },{
+           "format":"image/png8",
+           "group":"RADAR CAPPI",
+           "name":"RADAR:CAPPI",
+           "opacity":1,
+           "selected":false,
+           "source":"RADAR", 
+           "styles":["CAPPI_2000.0"],
+           "title":"CAPPI_2000.0",
+           "transparent":true,
+           "uuid":"ff6970ed-f409-4a8e-9ce7-85554d45a62e",
+           "visibility":false,
+           "ratio":1,
+           "srs":"EPSG:900913",
+           "transitionEffect":"resize",
+           "elevation":"2000.0"
+	}
+	,{
+           "format":"image/png8",
+           "group":"RADAR CAPPI",
+           "name":"RADAR:CAPPI",
+           "opacity":1,
+           "selected":false,
+           "source":"RADAR", 
+           "styles":["CAPPI_3000.0"],
+           "title":"CAPPI_3000.0",
+           "transparent":true,
+           "uuid":"ff6970ed-f409-4a8e-9ce7-85554d45a62e",
+           "visibility":false,
+           "ratio":1,
+           "srs":"EPSG:900913",
+           "transitionEffect":"resize",
+           "elevation":"3000.0"
+	}
+	,{
+           "format":"image/png8",
+           "group":"RADAR CAPPI",
+           "name":"RADAR:CAPPI",
+           "opacity":1,
+           "selected":false,
+           "source":"RADAR", 
+           "styles":["CAPPI_5000.0"],
+           "title":"CAPPI_5000.0",
+           "transparent":true,
+           "uuid":"ff6970ed-f409-4a8e-9ce7-85554d45a62e",
+           "visibility":false,
+           "ratio":1,
+           "srs":"EPSG:900913",
+           "transitionEffect":"resize",
+           "elevation":"5000.0"
+	}
+
+	,{
+	   "format":"image/png8",
+           "group":"RADAR SRI",
+           "name":"RADAR:SRI",
+           "opacity":1,
+           "selected":false,
+           "source":"RADAR", 
+           "styles":["SRI"],
+           "title":"SRI",
+           "transparent":true,
+           "uuid":"bd08cc8b-0d45-485c-9faa-74264376bb0f",
+           "visibility":false,
+           "ratio":1,
+           "srs":"EPSG:900913",
+           "transitionEffect":"resize"
+	}
+
+	,{
+	   "format":"image/png8",
+           "group":"RADAR SRT",
+           "name":"RADAR:SRT",
+           "opacity":1,
+           "selected":false,
+           "source":"RADAR", 
+           "styles":["SRT"],
+           "title":"SRT",
+           "transparent":true,
+           "uuid":"e96febb2-83cd-42a9-942a-cee6b0865351",
+           "visibility":false,
+           "ratio":1,
+           "srs":"EPSG:900913",
+           "transitionEffect":"resize"
+	}<#list event as root>
 	   <#-- NO MATCHES == NO CONTOUR -->
 	   <#if !( root.LAYERNAME?matches('.*Wind.*') )>
 	      <#if root.ELEVATION_DOMAIN?? >
 		  <#list root.ELEVATION_DOMAIN as ELEVATION >
 
 	,{
-           "format":"image/png",
+           "format":"image/png8",
            "group":"${root.WORKSPACE} ${root.LAYERNAME?substring(0,root.LAYERNAME?last_index_of("_"))?replace("_"," ")} ${root.LAYERNAME?substring(root.LAYERNAME?last_index_of("_")+1,root.LAYERNAME?last_index_of("T"))}",<#-- FIXED -->
            "name":"${root.WORKSPACE}:${root.LAYERNAME}",<#-- FIXED -->
-           "opacity":0.7,
+           "opacity":1,
            "selected":false,
            "source":"${root.WORKSPACE}", <#-- FIXED -->
            "styles":["${root.LAYERNAME?substring(0,root.LAYERNAME?last_index_of("_"))}_${ELEVATION}"],
@@ -352,10 +354,10 @@
 		  </#list><#-- list ELEVATION -->
 	      <#else><#-- ELSE NO ELEVATION_DOMAIN -->
 	,{
-	   "format":"image/png",
+	   "format":"image/png8",
            "group":"${root.WORKSPACE} ${root.LAYERNAME?substring(0,root.LAYERNAME?last_index_of("_"))?replace("_"," ")} ${root.LAYERNAME?substring(root.LAYERNAME?last_index_of("_")+1,root.LAYERNAME?last_index_of("T"))}",<#-- FIXED -->
            "name":"${root.WORKSPACE}:${root.LAYERNAME}",<#-- FIXED -->
-           "opacity":0.7,
+           "opacity":1,
            "selected":false,
            "source":"${root.WORKSPACE}", <#-- FIXED -->
            "styles":["${root.LAYERNAME?substring(0,root.LAYERNAME?last_index_of("_"))}"],
@@ -372,10 +374,10 @@
 	    	      <#if root.ELEVATION_DOMAIN?? >
 		  <#list root.ELEVATION_DOMAIN as ELEVATION >
 	,{
-           "format":"image/png",
+           "format":"image/png8",
            "group":"${root.WORKSPACE} ${root.LAYERNAME?substring(0,root.LAYERNAME?last_index_of("_"))?replace("_"," ")} ${root.LAYERNAME?substring(root.LAYERNAME?last_index_of("_")+1,root.LAYERNAME?last_index_of("T"))}",<#-- FIXED -->
            "name":"${root.WORKSPACE}:${root.LAYERNAME}",<#-- FIXED -->
-           "opacity":0.7,
+           "opacity":1,
            "selected":false,
            "source":"${root.WORKSPACE}", <#-- FIXED -->
            "styles":["${root.LAYERNAME?substring(0,root.LAYERNAME?last_index_of("_"))}_${ELEVATION}"],
@@ -389,10 +391,10 @@
            "elevation":"${ELEVATION}"
 	}
 	,{
-           "format":"image/png",
+           "format":"image/png8",
            "group":"${root.WORKSPACE} ${root.LAYERNAME?substring(0,root.LAYERNAME?last_index_of("_"))?replace("_"," ")} ${root.LAYERNAME?substring(root.LAYERNAME?last_index_of("_")+1,root.LAYERNAME?last_index_of("T"))}",<#-- FIXED -->
            "name":"${root.WORKSPACE}:${root.LAYERNAME}",<#-- FIXED -->
-           "opacity":0.7,
+           "opacity":1,
            "selected":false,
            "source":"${root.WORKSPACE}", <#-- FIXED -->
            "styles":["${root.LAYERNAME?substring(0,root.LAYERNAME?last_index_of("_"))}_${ELEVATION}_contour"],
@@ -408,10 +410,10 @@
 		  </#list><#-- list ELEVATION -->
 	      <#else><#-- ELSE NO ELEVATION_DOMAIN -->
 	,{
-	   "format":"image/png",
+	   "format":"image/png8",
            "group":"${root.WORKSPACE} ${root.LAYERNAME?substring(0,root.LAYERNAME?last_index_of("_"))?replace("_"," ")} ${root.LAYERNAME?substring(root.LAYERNAME?last_index_of("_")+1,root.LAYERNAME?last_index_of("T"))}",<#-- FIXED -->
            "name":"${root.WORKSPACE}:${root.LAYERNAME}",<#-- FIXED -->
-           "opacity":0.7,
+           "opacity":1,
            "selected":false,
            "source":"${root.WORKSPACE}", <#-- FIXED -->
            "styles":["${root.LAYERNAME?substring(0,root.LAYERNAME?last_index_of("_"))}"],
@@ -424,10 +426,10 @@
            "transitionEffect":"resize"
 	}
 	,{
-           "format":"image/png",
+           "format":"image/png8",
            "group":"${root.WORKSPACE} ${root.LAYERNAME?substring(0,root.LAYERNAME?last_index_of("_"))?replace("_"," ")} ${root.LAYERNAME?substring(root.LAYERNAME?last_index_of("_")+1,root.LAYERNAME?last_index_of("T"))}",<#-- FIXED -->
            "name":"${root.WORKSPACE}:${root.LAYERNAME}",<#-- FIXED -->
-           "opacity":0.7,
+           "opacity":1,
            "selected":false,
            "source":"${root.WORKSPACE}", <#-- FIXED -->
            "styles":["${root.LAYERNAME?substring(0,root.LAYERNAME?last_index_of("_"))}_contour"],
@@ -442,53 +444,97 @@
 	      </#if><#-- if ELEVATION_DOMAIN -->
 	    </#if><#-- if MATCHES -->
         </#list>
-        ,
-        {
-           "format":"image/png",
-           "group":"Stazioni",
-           "name":"lamma_stazioni:prec_web",
-           "opacity":0.9,
-           "selected":false,
-           "source":"LaMMA_Stazioni", 
-           "styles":[],
-           "title":"Pioggia oraria",
-           "transparent":true,
-           "visibility":true,
-           "ratio":1,
-           "srs":"EPSG:900913",
-           "transitionEffect":"resize",
-           "elevation":"0.0"
-        },{
-           "format":"image/png",
-           "group":"Stazioni",
-           "name":"lamma_stazioni:temparia_web",
-           "opacity":0.9,
-           "selected":false,
-           "source":"LaMMA_Stazioni", 
-           "styles":[],
-           "title":"Temperatura oraria",
-           "transparent":true,
-           "visibility":false,
-           "ratio":1,
-           "srs":"EPSG:900913",
-           "transitionEffect":"resize",
-           "elevation":"0.0"
-        },{
-           "format":"image/png",
-           "group":"Stazioni",
-           "name":"lamma_stazioni:vent_web",
-           "opacity":0.9,
-           "selected":false,
-           "source":"LaMMA_Stazioni", 
-           "styles":[],
-           "title":"Vento orario",
-           "transparent":true,
-           "visibility":false,
-           "ratio":1,
-           "srs":"EPSG:900913",
-           "transitionEffect":"resize",
-           "elevation":"0.0"
-        }
+,{
+                       "format":"image/gif",
+                       "group":"Stazioni",
+                       "name":"lamma_stazioni:prec60_web",
+                       "opacity":1,
+                       "selected":false,
+                       "source":"LaMMA_Stazioni", 
+                       "styles":[],
+                       "title":"Pioggia oraria",
+                       "transparent":true,
+                       "visibility":true,
+                       "ratio":1,
+                       "srs":"EPSG:900913",
+                       "transitionEffect":"resize",
+                       "elevation":"0.0"
+                    },{
+                       "format":"image/png8",
+                       "group":"Stazioni",
+                       "name":"lamma_stazioni:prec360_web",
+                       "opacity":1,
+                       "selected":false,
+                       "source":"LaMMA_Stazioni", 
+                       "styles":[],
+                       "title":"Pioggia 6 ore",
+                       "transparent":true,
+                       "visibility":false,
+                       "ratio":1,
+                       "srs":"EPSG:900913",
+                       "transitionEffect":"resize",
+                       "elevation":"0.0"
+                    },{
+                       "format":"image/png8",
+                       "group":"Stazioni",
+                       "name":"lamma_stazioni:temparia_web",
+                       "opacity":1,
+                       "selected":false,
+                       "source":"LaMMA_Stazioni", 
+                       "styles":[],
+                       "title":"Temperatura oraria",
+                       "transparent":true,
+                       "visibility":false,
+                       "ratio":1,
+                       "srs":"EPSG:900913",
+                       "transitionEffect":"resize",
+                       "elevation":"0.0"
+                    },{
+                       "format":"image/png8",
+                       "group":"Stazioni",
+                       "name":"lamma_stazioni:pres_web",
+                       "opacity":1,
+                       "selected":false,
+                       "source":"LaMMA_Stazioni", 
+                       "styles":[],
+                       "title":"Pressione oraria",
+                       "transparent":true,
+                       "visibility":false,
+                       "ratio":1,
+                       "srs":"EPSG:900913",
+                       "transitionEffect":"resize",
+                       "elevation":"0.0"
+                    },{
+                       "format":"image/png8",
+                       "group":"Stazioni",
+                       "name":"lamma_stazioni:umid_web",
+                       "opacity":1,
+                       "selected":false,
+                       "source":"LaMMA_Stazioni", 
+                       "styles":[],
+                       "title":"Umidit&agrave; oraria",
+                       "transparent":true,
+                       "visibility":false,
+                       "ratio":1,
+                       "srs":"EPSG:900913",
+                       "transitionEffect":"resize",
+                       "elevation":"0.0"
+                    },{
+                       "format":"image/png8",
+                       "group":"Stazioni",
+                       "name":"lamma_stazioni:vent_web",
+                       "opacity":1,
+                       "selected":false,
+                       "source":"LaMMA_Stazioni", 
+                       "styles":[],
+                       "title":"Vento orario",
+                       "transparent":true,
+                       "visibility":false,
+                       "ratio":1,
+                       "srs":"EPSG:900913",
+                       "transitionEffect":"resize",
+                       "elevation":"0.0"
+                    }
      ],
      "maxExtent":["-20037508.34","-20037508.34","20037508.34","20037508.34"],
      "maxResolution": 156543.0339,

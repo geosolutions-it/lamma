@@ -10,7 +10,7 @@
     "plugins": [
     {
         "ptype": "gxp_loadingindicator",
-        "onlyShowOnFirstLoad": false
+        "onlyShowOnFirstLoad": true
     }
     ],
     "layoutConfig": {
@@ -81,7 +81,7 @@
 	      <#if root.ELEVATION_DOMAIN?? >
 		  <#list root.ELEVATION_DOMAIN as ELEVATION >
 	,{
-           "format":"image/png",
+           "format":"image/png8",
            "group":"${root.WORKSPACE} ${root.LAYERNAME}",<#-- FIXED -->
            "name":"${root.WORKSPACE}:${root.LAYERNAME}",<#-- FIXED -->
            "opacity":0.7,
@@ -100,7 +100,7 @@
 		  </#list><#-- list ELEVATION -->
 	      <#else><#-- ELSE NO ELEVATION_DOMAIN -->
 	,{
-	   "format":"image/png",
+	   "format":"image/png8",
            "group":"${root.WORKSPACE} ${root.LAYERNAME}",<#-- FIXED -->
            "name":"${root.WORKSPACE}:${root.LAYERNAME}",<#-- FIXED -->
            "opacity":0.7,
@@ -120,7 +120,7 @@
 	    	      <#if root.ELEVATION_DOMAIN?? >
 		  <#list root.ELEVATION_DOMAIN as ELEVATION >
 	,{
-           "format":"image/png",
+           "format":"image/png8",
            "group":"${root.WORKSPACE} ${root.LAYERNAME}",<#-- FIXED -->
            "name":"${root.WORKSPACE}:${root.LAYERNAME}",<#-- FIXED -->
            "opacity":0.7,
@@ -137,7 +137,7 @@
            "elevation":"${ELEVATION}"
 	}
 	,{
-           "format":"image/png",
+           "format":"image/png8",
            "group":"${root.WORKSPACE} ${root.LAYERNAME}",<#-- FIXED -->
            "name":"${root.WORKSPACE}:${root.LAYERNAME}",<#-- FIXED -->
            "opacity":0.7,
@@ -156,7 +156,7 @@
 		  </#list><#-- list ELEVATION -->
 	      <#else><#-- ELSE NO ELEVATION_DOMAIN -->
 	,{
-	   "format":"image/png",
+	   "format":"image/png8",
            "group":"${root.WORKSPACE} ${root.LAYERNAME}",<#-- FIXED -->
            "name":"${root.WORKSPACE}:${root.LAYERNAME}",<#-- FIXED -->
            "opacity":0.7,
@@ -172,7 +172,7 @@
            "transitionEffect":"resize"
 	}
 	,{
-           "format":"image/png",
+           "format":"image/png8",
            "group":"${root.WORKSPACE} ${root.LAYERNAME}",<#-- FIXED -->
            "name":"${root.WORKSPACE}:${root.LAYERNAME}",<#-- FIXED -->
            "opacity":0.7,
@@ -254,7 +254,7 @@
         "legendConfig":{
            "defaults":{
               "baseParams":{
-                 "FORMAT":"image/png",
+                 "FORMAT":"image/png8",
                  "HEIGHT":12,
                  "LEGEND_OPTIONS":"forceLabels:on;fontSize:10",
                  "WIDTH":12

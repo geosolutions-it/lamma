@@ -15,7 +15,7 @@
             "plugins": [
             {
                 "ptype": "gxp_loadingindicator",
-                "onlyShowOnFirstLoad": false
+                "onlyShowOnFirstLoad": true
             }
             ],
             "layoutConfig": {

@@ -22,8 +22,6 @@
 package it.geosolutions.geobatch.lamma.geonetwork;
 
 import it.geosolutions.filesystemmonitor.monitor.FileSystemEvent;
-import it.geosolutions.geobatch.action.scripting.ScriptingAction;
-import it.geosolutions.geobatch.action.scripting.ScriptingConfiguration;
 import it.geosolutions.geobatch.flow.event.ProgressListenerForwarder;
 import it.geosolutions.geobatch.flow.event.action.Action;
 import it.geosolutions.geobatch.flow.event.action.ActionException;
@@ -33,9 +31,6 @@ import it.geosolutions.geonetwork.exception.GNException;
 import it.geosolutions.geonetwork.exception.GNLibException;
 import it.geosolutions.geonetwork.exception.GNServerException;
 import it.geosolutions.geonetwork.util.GNInsertConfiguration;
-import it.geosolutions.geonetwork.util.GNSearchRequest;
-import it.geosolutions.geonetwork.util.GNSearchResponse;
-import it.geosolutions.geonetwork.util.GNSearchResponse.GNMetadata;
 import it.geosolutions.tools.freemarker.filter.FreeMarkerFilter;
 import it.geosolutions.tools.freemarker.FreeMarkerUtils;
 
@@ -52,6 +47,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.thoughtworks.xstream.XStream;
+import it.geosolutions.geonetwork.op.GNMetadataGetInfo.MetadataInfo;
+import it.geosolutions.geonetwork.util.GNPrivConfiguration;
+import java.util.StringTokenizer;
 
 public class GeoNetworkUtils {
 
@@ -59,12 +57,10 @@ public class GeoNetworkUtils {
      * key used to enrich the root model map to add the GeoNetwork UUID
      */
     public final static String GN_UUID = "GN_UUID";
-
     /**
      * the default workspace
      */
     public final static String WORKSPACE = "WORKSPACE";
-
     /**
      * the key to get the GeoServer Url
      */
@@ -89,27 +85,30 @@ public class GeoNetworkUtils {
      * GeoNetwork styleSheet (_none_)
      */
     public final static String GNSTYLE = "GNSTYLE";
+
+    public final static String GNPRIV = "GNPRIV";
+
     /**
-     * GeoNetwork the key matching the path (relative to the configDir where the
-     * GN metadata template is located
+     * GeoNetwork the key matching the path (relative to the configDir where the GN metadata template is located
      */
     public final static String GN_METADATA_TEMPLATE = "GN_METADATA_TEMPLATE";
 
     /**
      * Script Main "execute" function
-     **/
+     *
+     */
     public static List<Map> publishOnGeoNetworkAction(final ProgressListenerForwarder listenerForwarder,
-                                                      boolean failIgnore, final File tempDir,
-                                                      final File configDir,
-                                                      final List<FileSystemEvent> events, Map argsMap,
-                                                      final Map map) throws Exception {
+            boolean failIgnore, final File tempDir,
+            final File configDir,
+            final List<FileSystemEvent> events, Map argsMap,
+            final Map mapFromConfig) throws Exception {
 
 
         // set workspace
-        String workspace = (String)map.get(WORKSPACE);
+        String workspace = (String) mapFromConfig.get(WORKSPACE);
         if (workspace == null) {
             throw new ActionException(Action.class, "Unable to continue without a " + WORKSPACE
-                                                    + " defined, please check your configuration");
+                    + " defined, please check your configuration");
         }
 
         final Logger logger = LoggerFactory.getLogger(GeoNetworkUtils.class);
@@ -122,41 +121,32 @@ public class GeoNetworkUtils {
             File imageMosaicOutput = event.getSource();
 
             if (logger.isDebugEnabled()) {
-                logger.debug("Doing stuff for: " + imageMosaicOutput);
+                logger.debug("Running GeoNetwork processing on " + imageMosaicOutput);
             }
 
             // GEONETWORK
             // ////////////////////////////////////////////////////////////////
 
-            final String gnTemplateName = (String)map.get(GN_METADATA_TEMPLATE);
-            if (gnTemplateName == null)
+            final String gnTemplateName = (String) mapFromConfig.get(GN_METADATA_TEMPLATE);
+            if (gnTemplateName == null) {
                 throw new IllegalArgumentException("The key " + GN_METADATA_TEMPLATE
-                                                   + " property is not set, please fix the configuration.");
+                        + " property is not set, please fix the configuration.");
+            }
 
             final FreeMarkerFilter gnFilter = new FreeMarkerFilter(new File(configDir, gnTemplateName));
 
-            String gnUrl = (String)map.get(GNURL);
-            if (gnUrl == null) {
-                gnUrl = "http://localhost:8282/geonetwork";
-            }
-            String gnUsr = (String)map.get(GNUID);
-            if (gnUsr == null) {
-                gnUsr = "admin";
-            }
-            String gnPwd = (String)map.get(GNPWD);
-            if (gnPwd == null) {
-                gnPwd = "admin";
-            }
-            final GNClient geonetwork = GeoNetworkUtils.createClientAndLogin(gnUrl, gnUsr, gnPwd);
-
-            String gnCat = (String)map.get(GNCAT);
-            String gnGroup = (String)map.get(GNGRP);
-            String gnStyleSheet = (String)map.get(GNSTYLE);
+            GNInsertConfiguration insertConfiguration = createGNInsertConfiguration(mapFromConfig);
+            GNPrivConfiguration   privConfiguration   = createGNPrivConfiguration(mapFromConfig);
 
             try {
+                GNClient geonetworkClient = createClientAndLogin(mapFromConfig);
+                if (geonetworkClient == null) {
+                    throw new ActionException(Action.class, "Unable to connect to geonetwork");
+                }
+
                 Map root = GeoNetworkUtils.publishOnGeoNetwork(tempDir, imageMosaicOutput, gnFilter,
-                                                               geonetwork, gnCat, gnGroup, gnStyleSheet,
-                                                               failIgnore, logger);
+                        geonetworkClient, insertConfiguration, privConfiguration,
+                        failIgnore, logger);
                 rootList.add(root);
             } catch (ActionException e) {
                 if (failIgnore) {
@@ -167,19 +157,17 @@ public class GeoNetworkUtils {
                     throw e;
                 }
             }
-
-        } // for each file into the queue
+        }
 
         listenerForwarder.completed();
         return rootList;
     }
 
-    private final static XStream xstream = new XStream();
-
     public static Map publishOnGeoNetwork(File tempDir, File mosaicOutput, FreeMarkerFilter gnFilter,
-                                          GNClient geonetwork, String gnCat, String gnGroup,
-                                          String gnStyleSheet, boolean failIgnore, Logger logger)
-        throws ActionException, IllegalArgumentException, IOException {
+            GNClient geonetwork, 
+            GNInsertConfiguration insertConfiguration, GNPrivConfiguration   privConfiguration,
+            boolean failIgnore, Logger logger)
+            throws ActionException, IllegalArgumentException, IOException {
 
         // use Freemarker to produce metadata for geoNetwork
         final File gnMetadataFile;
@@ -188,23 +176,23 @@ public class GeoNetworkUtils {
         Map root = null;
         String resourceName;
         try {
-
+            XStream xstream = new XStream();
             fis = new FileInputStream(mosaicOutput);
             bis = new BufferedInputStream(fis);
-            root = (Map)xstream.fromXML(bis);
-            resourceName = (String)root.get(ImageMosaicOutput.LAYERNAME);
+            root = (Map) xstream.fromXML(bis);
+            resourceName = (String) root.get(ImageMosaicOutput.LAYERNAME);
             gnMetadataFile = File.createTempFile(resourceName, ".xml", tempDir);
             FreeMarkerUtils.freeMarker(root, gnFilter, gnMetadataFile);
         } catch (Exception e) {
-            throw new ActionException(Action.class, e.getLocalizedMessage(), e.getCause());
+            throw new ActionException(Action.class, e.getLocalizedMessage(), e);
         } finally {
             IOUtils.closeQuietly(bis);
             IOUtils.closeQuietly(fis);
         }
 
-        // GeoNetwork
         try {
-            geoNetworkUpdate(geonetwork, root, gnMetadataFile, resourceName, gnCat, gnGroup, gnStyleSheet);
+            geoNetworkUpdate(geonetwork, root, gnMetadataFile, resourceName, insertConfiguration, privConfiguration);
+            root.put(GeoNetworkUtils.GN_UUID, resourceName);
         } catch (Exception e) {
             if (failIgnore) {
                 if (logger != null && logger.isErrorEnabled()) {
@@ -213,7 +201,7 @@ public class GeoNetworkUtils {
                 // continue;
                 // try publishing on GeoStore at least
             } else {
-                throw new ActionException(Action.class, e.getLocalizedMessage(), e.getCause());
+                throw new ActionException(Action.class, e.getLocalizedMessage(), e);
             }
         }
 
@@ -222,103 +210,123 @@ public class GeoNetworkUtils {
 
     /**
      * update/insert into geonetwork<br>
-     * 
-     * also enrich the root with GN_UUID
-     * 
-     * @param client
-     * @param root
-     * @param gnMetadataFile
-     * @param metadataTitle
+     *
      * @throws ActionException
      */
-    public static void geoNetworkUpdate(GNClient client, Map root, File gnMetadataFile, String metadataTitle,
-                                        String gnCat, String gnGroup, String gnStyleSheet)
-        throws ActionException {
+    public static void geoNetworkUpdate(GNClient client, Map root, File gnMetadataFile, String metadataUuid,
+            GNInsertConfiguration insertConfiguration, GNPrivConfiguration privConfiguration)
+            throws ActionException {
 
-        if (client == null) {
-            throw new ActionException(Action.class, "Unable to connect to geonetwork");
-        }
-        try {
-            // search METADATA by TITLE and get ID
-            final GNSearchResponse searchResponse = searchMetadata(client, metadataTitle);
-            // if TITLE is not found -> INSERT
-            if (searchResponse.getCount() == 0) {
-                // create metadata using
-                final GNInsertConfiguration insertRequest = new GNInsertConfiguration();
-                // add metadata to GeoNetwork
-                if (gnCat == null) {
-                    gnCat = "datasets";
+        final Logger logger = LoggerFactory.getLogger(GeoNetworkUtils.class);
+
+        try {            
+            MetadataInfo info = getByUuid(client, metadataUuid);
+
+            if (info == null) {
+                logger.info("Inserting metadata with uuid " + metadataUuid);
+                long id = client.insertMetadata(insertConfiguration, gnMetadataFile);
+                if(privConfiguration != null) {
+                    logger.info("Setting privileges to metadata with uuid " + metadataUuid);
+                    client.setPrivileges(id, privConfiguration);
                 }
-                insertRequest.setCategory(gnCat);
-
-                if (gnGroup == null) {
-                    gnGroup = "1";
-                }
-                insertRequest.setGroup(gnGroup); // group 1 is usually "all"
-
-                if (gnStyleSheet == null) {
-                    gnStyleSheet = "_none_";
-                }
-                insertRequest.setStyleSheet(gnStyleSheet);
-                insertRequest.setValidate(Boolean.FALSE);
-
-                Long id = client.insertMetadata(insertRequest, gnMetadataFile);
-
-                // search the added metadata to get the UUID
-                GNSearchResponse addedMetadataSearchResponse = searchMetadata(client, metadataTitle);
-                if (addedMetadataSearchResponse.getCount() != 0) {
-                    GNMetadata metadata = addedMetadataSearchResponse.getMetadata(0);
-                    String uuid = metadata.getUUID();
-                    ((Map)root).put(GeoNetworkUtils.GN_UUID, uuid);
-                }
-
             } else {
-                // else -> UPDATE
-                GNMetadata metadata = searchResponse.getMetadata(0);
-                Long id = metadata.getId();
-                String uuid = metadata.getUUID();
-
-                ((Map)root).put(GeoNetworkUtils.GN_UUID, uuid);
-
-                client.updateMetadata(id, gnMetadataFile);
-
-                // TODO CHECK IS the UUID CHANGED?
+                logger.info("Updating metadata with uuid " + metadataUuid);
+                client.updateMetadata(info.getId(), info.getVersion(), gnMetadataFile);
             }
+
         } catch (GNException e) {
-            throw new ActionException(Action.class, e.getLocalizedMessage(), e.getCause());
+            throw new ActionException(Action.class, e.getLocalizedMessage(), e);
         }
     }
 
-    public static GNClient createClientAndLogin(String gnURL, String gnUSR, String gnPWD) {
-        GNClient client = new GNClient(gnURL);
-        if (!client.login(gnUSR, gnPWD)) {
+    public static GNClient createClientAndLogin(final Map map) {
+        String gnUrl = (String) map.get(GNURL);
+        if (gnUrl == null) {
+            gnUrl = "http://localhost:8282/geonetwork";
+        }
+        String gnUsr = (String) map.get(GNUID);
+        if (gnUsr == null) {
+            gnUsr = "admin";
+        }
+        String gnPwd = (String) map.get(GNPWD);
+        if (gnPwd == null) {
+            gnPwd = "admin";
+        }
+
+        GNClient client = new GNClient(gnUrl);
+        if (!client.login(gnUsr, gnPwd)) {
             return null;
         } else {
             return client;
         }
-
     }
 
-    public static GNSearchResponse searchMetadataByTitle(GNClient client, String title)
-        throws GNLibException, GNServerException {
-        GNSearchRequest searchRequest = new GNSearchRequest();
-        searchRequest.addParam(GNSearchRequest.Param.title, title);
-        return client.search(searchRequest);
+
+    public static MetadataInfo getByUuid(GNClient client, String uuid) throws GNLibException, GNServerException {
+
+        try {
+            return client.getInfo(uuid, true);
+        } catch (GNServerException ex) {
+            // usually it's a metadata not found, but no way to check for it (e.g. no 404 returned)
+            return null;
+        }
     }
 
-    /**
-     * TODO by ID
-     * 
-     * @param client
-     * @param title
-     * @return
-     * @throws GNLibException
-     * @throws GNServerException
-     */
-    public static GNSearchResponse searchMetadata(GNClient client, String title) throws GNLibException,
-        GNServerException {
-        GNSearchRequest searchRequest = new GNSearchRequest();
-        searchRequest.addParam(GNSearchRequest.Param.title, title);
-        return client.search(searchRequest);
+    protected static GNInsertConfiguration createGNInsertConfiguration(Map mapFromConfig) {
+
+        final GNInsertConfiguration insertRequest = new GNInsertConfiguration();
+
+        String gnCat = (String) mapFromConfig.get(GNCAT);
+        if (gnCat == null) {
+            gnCat = "datasets";
+        }
+        insertRequest.setCategory(gnCat);
+
+        String gnGroup = (String) mapFromConfig.get(GNGRP);
+        if (gnGroup == null) {
+            gnGroup = "1";
+        }
+        insertRequest.setGroup(gnGroup); // group 1 is usually "all"
+
+        String gnStyleSheet = (String) mapFromConfig.get(GNSTYLE);
+        if (gnStyleSheet == null) {
+            gnStyleSheet = "_none_";
+        }
+        insertRequest.setStyleSheet(gnStyleSheet);
+
+        insertRequest.setValidate(Boolean.FALSE);
+
+        return insertRequest;
     }
+
+    protected static GNPrivConfiguration createGNPrivConfiguration(Map mapFromConfig) {
+
+        String gnPriv = (String) mapFromConfig.get(GNPRIV);
+        if (gnPriv == null) {
+            return null;
+        }
+
+        final Logger logger = LoggerFactory.getLogger(GeoNetworkUtils.class);
+        GNPrivConfiguration pcfg = new GNPrivConfiguration();
+
+        for (StringTokenizer stringTokenizer = new StringTokenizer(gnPriv, ", "); stringTokenizer.hasMoreTokens();) {
+            String token = stringTokenizer.nextToken().trim();
+            if( ! token.contains("_")) {
+                logger.warn("Privileges error: bad token '"+token+"'");
+                return null;
+            }
+            String group = token.substring(0,token.indexOf("_"));
+            String privs = token.substring(token.indexOf("_")+1);
+
+            try{
+                pcfg.addPrivileges(Integer.valueOf(group), privs);
+            } catch(Exception ex) {
+                logger.warn("Privileges error: bad privileges: " + ex.getMessage());
+                return null;
+            }
+        }
+
+        return pcfg;
+    }
+    
 }
