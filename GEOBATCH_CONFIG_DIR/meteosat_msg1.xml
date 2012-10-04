@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FlowConfiguration>
+	<id>meteosat_msg1</id>
+	<description>Flow for Meteosat</description>
+	<name>meteosat</name>
+	
+	<corePoolSize>5</corePoolSize>
+	<maximumPoolSize>10</maximumPoolSize>
+	<keepAliveTime>3600</keepAliveTime> <!--seconds-->
+	<workQueueSize>100</workQueueSize>
+	
+	<autorun>true</autorun>
+	
+	<EventGeneratorConfiguration>
+		<wildCard>MSG1_*.*</wildCard>
+		<!--watchDirectory>meteosat_msg1/in</watchDirectory-->
+		<watchDirectory>/opt/ingestion/</watchDirectory>
+		<osType>OS_UNDEFINED</osType>
+		<eventType>FILE_ADDED</eventType>
+
+                  <!-- CRON: every 10 secs -->
+                  <interval>*/10 * * * * ?</interval>
+                  <!--interval>0 30 5 * * ?</interval-->
+
+		<id>id</id>
+		<serviceID>fsEventGeneratorService</serviceID>
+	</EventGeneratorConfiguration>
+	
+	<EventConsumerConfiguration>
+	
+		<id>id</id>
+		
+		<performBackup>false</performBackup>
+		
+		<listenerId>Logger</listenerId>
+		<listenerId>Cumulator</listenerId>
+		
+		<ScriptingConfiguration>
+			<id>MeteosatScript</id>
+			<description>Groovy Script</description>
+			<name>meteosat_script</name>
+			
+			<listenerId>Logger</listenerId>
+			<listenerId>StatusAction</listenerId>
+			
+			<serviceID>ScriptingService</serviceID>
+
+			<overrideConfigDir>../</overrideConfigDir>
+
+			<language>groovy</language>
+			<scriptFile>commons/meteosat.groovy</scriptFile>
+			<properties>
+				  <!-- xml template for translate-->
+				  <entry>
+				    <string>ENV_FILE</string>
+				    <!--relative to the confDir dir-->
+				    <string>commons/env.properties</string>
+				  </entry>
+				  <entry>
+				    <string>WORKSPACE</string>
+				    <string>MSG1</string>
+				  </entry>
+				  
+				  <entry>
+				    <string>GSPWD</string>
+				    <string>j6Knno8r</string>
+				  </entry>
+				  <entry>
+				    <string>GSUID</string>
+				    <string>admin</string>
+				  </entry>
+				  <entry>
+				    <string>GSURL</string>
+				    <!--string>http://localhost:8181/geoserver/</string-->
+				    <string>http://172.16.1.134:8080/geoserver</string>
+				  </entry>
+                  <entry>
+                    <string>TIME_REGEX</string>
+                    <string>[0-9]{8}T[0-9]{9}Z(\?!.\*[0-9]{8}T[0-9]{9}Z.\*)</string>
+                  </entry>
+                  <entry>
+                    <string>DATASTORE_PROPS</string>
+                    <string>commons/datastore.properties</string>
+                  </entry>
+
+				  
+				  <entry>
+				    <string>GNPWD</string>
+				    <string>j6Knno8r</string>
+				  </entry>
+				  <entry>
+				    <string>GNUID</string>
+				    <string>admin</string>
+				  </entry>
+				  <entry>
+				    <string>GNURL</string>
+				    <!--string>http://localhost:8282/geonetwork/</string-->
+				    <string>http://172.16.1.136:8080/geonetwork</string>
+				  </entry>
+				  <entry>
+				    <string>GN_METADATA_TEMPLATE</string>
+				    <string>commons/gn_msg_template.xml</string>
+				  </entry>
+				  
+				  
+				  <entry>
+				    <string>GSTPWD</string>
+				    <string>admin</string>
+				  </entry>
+				  <entry>
+				    <string>GSTUID</string>
+				    <string>admin</string>
+				  </entry>
+				  <entry>
+				    <string>GSTURL</string>
+				    <!--string>http://localhost:8383/geostore/rest/</string-->
+				    <string>http://172.16.1.136:8181/geostore/rest/</string>
+				  </entry>
+				  <entry>
+				    <string>GST_METADATA_TEMPLATE</string>
+				    <string>commons/gst_msg_template.js</string>
+				  </entry>
+				  <entry>
+				    <string>GST_LAYER_TEMPLATE</string>
+				    <string>commons/gst_msg_layer_template.js</string>
+				  </entry>
+				  
+				  
+				  <entry>
+				    <string>PREFIX_LIST</string>
+				    <string>Channel_05,Channel_06,Channel_09,Channel_12</string>
+				  </entry>
+				  
+				  
+				  <!-- Channel_5 -->
+				  <entry>
+				    <string>Channel_05_FILTER</string>
+				    <string>*_WV_062_05*</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_05_STYLE</string>
+				    <string>raster</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_05_MOSAIC_DIR</string>
+				    <string>/opt/data/msg1/MSG1_Channel_05</string>
+				  </entry>
+				  
+				  <!-- Channel_6 -->
+				  <entry>
+				    <string>Channel_06_FILTER</string>
+				    <string>*_WV_073_06*</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_06_STYLE</string>
+				    <string>raster</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_06_MOSAIC_DIR</string>
+				    <string>/opt/data/msg1/MSG1_Channel_06</string>
+				  </entry>
+				  
+				  <!-- Channel_10 -->
+				  <entry>
+				    <string>Channel_09_FILTER</string>
+				    <string>*_IR_108_09*</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_09_STYLE</string>
+				    <string>raster</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_09_MOSAIC_DIR</string>
+				    <string>/opt/data/msg1/MSG1_Channel_09</string>
+				  </entry>
+				  
+				  <!-- Channel_10 -->
+				  <entry>
+				    <string>Channel_12_FILTER</string>
+				    <string>*_HRV_12*</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_12_STYLE</string>
+				    <string>raster</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_12_MOSAIC_DIR</string>
+				    <string>/opt/data/msg1/MSG1_Channel_12</string>
+				  </entry>
+				  
+				  <!--entry>
+				    <string>_FILTER</string>
+				    <string></string>
+				  </entry>
+				  <entry>
+				    <string>_CALC</string>
+				    <string></string>
+				  </entry>
+				  <entry>
+				    <string>_SCRIPT</string>
+				    <string></string>
+				  </entry>
+				  <entry>
+				    <string>_STYLE</string>
+				    <string></string>
+				  </entry>
+				  <entry>
+				    <string>_MOSAIC_DIR</string>
+				    <string></string>
+				  </entry-->
+				  
+			</properties>
+		</ScriptingConfiguration>
+		
+	</EventConsumerConfiguration>
+	
+	<ListenerConfigurations>
+		<LoggingProgressListener>
+			<serviceID>loggingListenerService</serviceID>
+			<id>Logger</id>
+			<loggerName>it.geosolutions.geobatch</loggerName>
+		</LoggingProgressListener>
+		
+		<CumulatingProgressListener>
+			<serviceID>cumulatingListenerService</serviceID>
+			<id>Cumulator</id>
+		</CumulatingProgressListener>
+		
+		<StatusProgressListener>
+			<serviceID>statusListenerService</serviceID>
+			<id>StatusAction</id>
+		</StatusProgressListener>
+		
+	</ListenerConfigurations>
+	
+</FlowConfiguration>

@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FlowConfiguration>
+	<id>gfs_50km_run18</id>
+	<name>LaMMa GFS 50 km</name>
+	<description>Create images from netcdf publish on GeoServer and on GeoNetwork</description>
+	
+	<corePoolSize>2</corePoolSize>
+	<maximumPoolSize>2</maximumPoolSize>
+	<keepAliveTime>1500</keepAliveTime>
+	<workQueueSize>100</workQueueSize>
+	
+	<autorun>true</autorun>
+	
+	<EventGeneratorConfiguration>
+		<!--<wildCard>*.grb</wildCard-->
+		<wildCard>*_gfs*18.grb</wildCard>
+		<watchDirectory>/opt/ingestion/</watchDirectory>
+		<!--watchDirectory>gfs_50km_run18/in/</watchDirectory-->
+		<osType>OS_UNDEFINED</osType>
+		<eventType>FILE_ADDED</eventType>
+		<interval>0 0/15 22-00 * * ?</interval>
+		<id>id</id>
+		<serviceID>fsEventGeneratorService</serviceID>
+	</EventGeneratorConfiguration>
+	<EventConsumerConfiguration>
+		<id>LaMMa</id>
+		
+		<listenerId>LaMMaLogger</listenerId>
+		<listenerId>LaMMaCumulator</listenerId>
+
+		<performBackup>false</performBackup>
+		<preserveInput>false</preserveInput>
+		
+		<Netcdf2GeotiffConfiguration>
+		        <listenerId>LaMMaLogger</listenerId>
+			<listenerId>LaMMaCumulator</listenerId>
+			<listenerId>LaMMaStatus</listenerId>
+
+			<overrideConfigDir>./</overrideConfigDir>
+			
+			<layerParentDirectory>/opt/data/models/gfs_50km_run18/</layerParentDirectory>
+			<!--layerParentDirectory>/home/carlo/work/project/Lamma/trunk/lamma_2012/GEOBATCH_TEMP_DIR/gfs_50km_run18</layerParentDirectory-->
+			
+			<crs>EPSG:4326</crs>
+			<envelope/>
+			<metocDictionaryPath>config/lamma-dictionary_gfs_50km.xml</metocDictionaryPath>
+			
+			<flipY>false</flipY>
+			
+			<variables>
+			  <!--string>Categorical_freezing_rain</string-->
+			  <!--string>Categorical_ice_pellets</string-->
+			  <!--string>Categorical_rain</string-->
+			  <!--string>Categorical_snow</string-->
+			  <string>Convective_Avail_Pot_Energy</string> <!-- OK -->
+			  <string>Convective_inhibition</string> <!-- OK -->
+			  <!--string>Convective_precip_rate</string-->
+			  <!--string>Convective_precipitation</string-->
+			  <!--string>Dew_point_temperature</string-->
+			  <!--string>Downward_long_wave_flux</string-->
+			  <!--string>Downward_short_wave_flux</string-->
+			  <string>Geopotential_height</string> <!-- OK -->
+			  <string>Geopotential_height_highest_tropospheric_freezing</string> <!-- OK -->
+			  <string>Geopotential_height_surface</string> <!-- OK -->
+			  <string>Geopotential_height_potential_vorticity_surface</string> <!-- OK -->
+			  <string>Land_cover_land1sea0</string> <!-- OK -->
+			  <string>Pressure_reduced_to_MSL</string> <!-- OK -->
+			  <!--string>Precipitation_rate</string-->
+			  <string>Relative_humidity</string> <!-- OK -->
+			  <!--string>Relative_humidity_height_above_ground</string-->
+			  <!--string>Surface_wind_gust</string--> <!-- OK -->
+			  <string>Temperature</string> <!-- OK -->
+			  <string>Temperature_height_above_ground</string> <!-- OK -->
+			  <!--string>Temperature_surface</string-->
+	              <!--string>Temperature_layer_between_two_depths_below_surface</string-->
+			  <!--string>Total_cloud_cover</string-->
+			  <!--string>Total_cloud_cover_high_cloud_layer</string-->
+			  <!--string>Total_cloud_cover_low_cloud_layer</string-->
+			  <!--string>Total_cloud_cover_middle_cloud_layer</string-->
+			  <!--string>Total_precipitation</string-->
+			  <!--string>u_wind</string--> <!-- OK -->
+			  <!--string>u_wind_height_above_ground</string--> <!-- OK -->
+			  <!--string>v_wind</string--> <!-- OK -->
+			  <!--string>v_wind_height_above_ground</string--> <!-- OK -->
+              <!--string>Volumetric_soil_moisture</string--> <!-- DA AGGIUNGERE -->
+			</variables>
+			
+			<serviceID>Netcdf2GeotiffService</serviceID>
+			<id>LaMMagfsind_a2</id>
+			<description>LaMMagfsind NetCDFCFGeodetic2GeoTIFFs</description>
+			<name>LaMMagfsind_a2</name>
+		</Netcdf2GeotiffConfiguration>
+		
+		<ImageMosaicActionConfiguration>
+			<overrideConfigDir>./</overrideConfigDir>
+
+		        <listenerId>LaMMaLogger</listenerId>
+			<listenerId>LaMMaCumulator</listenerId>
+			<listenerId>LaMMaStatus</listenerId>						
+
+			<crs>EPSG:4326</crs>
+
+			<envelope/>
+			<dataTransferMethod>EXTERNAL</dataTransferMethod>
+			<geoserverUID>admin</geoserverUID>
+			<!--geoserverPWD>geoserver</geoserverPWD>
+			<geoserverURL>http://localhost:8181/geoserver</geoserverURL-->
+			<geoserverPWD>j6Knno8r</geoserverPWD>
+			<geoserverURL>http://172.16.1.134:8080/geoserver</geoserverURL>
+			<defaultNamespace>GFS_50KM_RUN18</defaultNamespace>
+			<defaultStyle>raster</defaultStyle>
+
+			<wmsPath>/</wmsPath>
+			<backgroundValue>NaN</backgroundValue>
+			<outputTransparentColor/>
+			<inputTransparentColor/>
+			<allowMultithreading>true</allowMultithreading>
+			<useJaiImageRead>false</useJaiImageRead>
+
+			<tileSizeH>256</tileSizeH>
+			<tileSizeW>256</tileSizeW>
+			<NativeMinBoundingBoxX>-30</NativeMinBoundingBoxX>
+
+			<NativeMinBoundingBoxY>25</NativeMinBoundingBoxY>
+
+			<NativeMaxBoundingBoxX>45</NativeMaxBoundingBoxX>
+
+			<NativeMaxBoundingBoxY>70</NativeMaxBoundingBoxY>
+
+			<latLonMinBoundingBoxX>-30</latLonMinBoundingBoxX>
+
+			<latLonMinBoundingBoxY>25</latLonMinBoundingBoxY>
+
+			<latLonMaxBoundingBoxX>45</latLonMaxBoundingBoxX>
+
+			<latLonMaxBoundingBoxY>70</latLonMaxBoundingBoxY>
+			<!--NONE, REPROJECT_TO_DECLARED, FORCE_DECLARED-->
+			<projectionPolicy>NONE</projectionPolicy>
+			<!-- METADATA -->
+			<timeDimEnabled>true</timeDimEnabled>
+			<!-- LIST, CONTINUOUS_INTERVAL, DISCRETE_INTERVAL -->
+			<timePresentationMode>LIST</timePresentationMode>
+			<elevDimEnabled>true</elevDimEnabled>
+			<elevationPresentationMode>LIST</elevationPresentationMode>
+			<!--  <dirName>DIR</dirName>-->
+			<styles/>
+			
+			<!--<datastorePropertiesPath>config/datastore.properties</datastorePropertiesPath>-->
+			<timeRegex>[0-9]{8}T[0-9]{9}Z(\?!.\*[0-9]{8}T[0-9]{9}Z.\*)</timeRegex>
+			<elevationRegex><![CDATA[(?<=_)(\\d{4}\\.\\d{3})(?=_)]]></elevationRegex>
+
+			<serviceID>ImageMosaicGeneratorService</serviceID>
+			<id>ImageMosaicService</id>
+			<description>ImageMosaicService</description>
+			<name>ImageMosaicService</name>
+		</ImageMosaicActionConfiguration>
+		<ScriptingConfiguration>
+			<id>Script</id>
+			<description>Groovy Script</description>
+			<name>script</name>
+			
+		        <listenerId>LaMMaLogger</listenerId>
+			<listenerId>LaMMaCumulator</listenerId>
+			<listenerId>LaMMaStatus</listenerId>
+			
+			<serviceID>ScriptingService</serviceID>
+			
+			<overrideConfigDir>../</overrideConfigDir>
+
+			<language>groovy</language>
+			<scriptFile>commons/GeoNetworkAndGeoStore.groovy</scriptFile>
+			<properties>
+				  <entry>
+				    <string>WORKSPACE</string>
+				    <string>GFS_50KM_RUN18</string>
+				  </entry>
+				  
+				  <entry>
+				    <string>GNPWD</string>
+				    <!--string>admin</string-->
+				    <string>j6Knno8r</string>
+				  </entry>
+				  <entry>
+				    <string>GNUID</string>
+				    <string>admin</string>
+				  </entry>
+				  <entry>
+				    <string>GNURL</string>
+				    <!--string>http://localhost:8282/geonetwork/</string-->
+				    <string>http://172.16.1.136:8080/geonetwork</string>
+				  </entry>
+				  
+				  <entry>
+				    <string>GN_METADATA_TEMPLATE</string>
+				    <string>commons/gn_template.xml</string>
+				  </entry>
+				  
+				  
+				  <entry>
+				    <string>GSTPWD</string>
+				    <string>admin</string>
+				  </entry>
+				  <entry>
+				    <string>GSTUID</string>
+				    <string>admin</string>
+				  </entry>
+				  <entry>
+				    <string>GSTURL</string>
+				    <!--string>http://localhost:8383/geostore/rest/</string-->
+				    <string>http://172.16.1.136:8181/geostore/rest/</string>
+				  </entry>
+				  <entry>
+				    <string>GST_METADATA_TEMPLATE</string>
+				    <string>commons/gst_template.js</string>
+				  </entry>
+				  <entry>
+				    <string>GST_LAYER_TEMPLATE</string>
+				    <string>commons/gst_msg_layer_template.js</string>
+				  </entry>
+			</properties>
+		</ScriptingConfiguration>
+
+		<!--XstreamConfiguration>
+			<serviceID>XstreamGeneratorService</serviceID>
+			<id>XstreamGeneratorService</id>
+			<description>Xstream action</description>
+			<name>XstreamConfiguration</name>
+			
+			<overrideConfigDir>./</overrideConfigDir>
+		  
+			<dirty>false</dirty>
+
+		        <listenerId>LaMMaLogger</listenerId>
+			<listenerId>LaMMaCumulator</listenerId>
+			<listenerId>LaMMaStatus</listenerId>
+
+			<failIgnored>false</failIgnored>
+		  
+			<output>out/</output>
+		</XstreamConfiguration>
+		<FreeMarker>
+			<serviceID>FreeMarkerGeneratorService</serviceID>
+			<id>FreeMarkerGeneratorService</id>
+			<description>description</description>
+			<name>FreeMarkerConfiguration</name>
+			
+			<overrideConfigDir>./</overrideConfigDir>
+		  
+			<dirty>false</dirty>
+
+		        <listenerId>LaMMaLogger</listenerId>
+			<listenerId>LaMMaCumulator</listenerId>
+			<listenerId>LaMMaStatus</listenerId>
+
+			<failIgnored>false</failIgnored>
+		  
+			<input>config/template.xml</input>
+			<output>out/</output>
+			<nToN>true</nToN>
+		</FreeMarker>
+		<Geonetwork>
+			<serviceID>GeonetworkGeneratorService</serviceID>
+			<id>GeonetworkGeneratorService</id>
+			<name>GeonetworkConfiguration</name>
+			<description>description</description>
+
+		        <listenerId>LaMMaLogger</listenerId>
+			<listenerId>LaMMaCumulator</listenerId>
+			<listenerId>LaMMaStatus</listenerId>
+			
+			<dirty>false</dirty>
+			<failIgnored>false</failIgnored>
+		  
+			<overrideConfigDir>./</overrideConfigDir>
+
+			
+			<geonetworkServiceURL>http://172.16.1.136:8080/geonetwork</geonetworkServiceURL>
+			<loginPassword>j6Knno8r</loginPassword>
+			<loginUsername>admin</loginUsername>
+			
+			<onlyMetadataInput>true</onlyMetadataInput>
+			<group>1</group>
+			<category>_none_</category>
+			<styleSheet>_none_</styleSheet>
+			<validate>false</validate>
+		</Geonetwork-->
+
+		<GeoServerReloadConfiguration>
+			<serviceID>GeoServerReloadService</serviceID>
+			<id>GeoServerReloadAction</id>
+			<name>GeoServerReloadAction</name>
+			<description>GeoServerReload</description>
+
+		        <listenerId>LaMMaLogger</listenerId>
+			<listenerId>LaMMaCumulator</listenerId>
+			<listenerId>LaMMaStatus</listenerId>
+			
+			<dirty>false</dirty>
+			<failIgnored>false</failIgnored>
+		  
+
+			<geoserverList>/opt/GEOBATCH_DATA_DIR/commons/GeoServerList.xml</geoserverList>
+			
+			<!--geoserverList>/home/carlo/work/project/Lamma/trunk/lamma_2012/GEOBATCH_CONFIG_DIR/commons/GeoServerList.xml</geoserverList-->
+			<executorSize>10</executorSize>
+			
+			<overrideConfigDir>./</overrideConfigDir>
+			
+		</GeoServerReloadConfiguration>
+
+	</EventConsumerConfiguration>
+	<ListenerConfigurations>
+		<LoggingProgressListener>
+			<serviceID>loggingListenerService</serviceID>
+			<id>LaMMaLogger</id>
+			<loggerName>it.geosolutions.geobatch</loggerName>
+		</LoggingProgressListener>
+		<CumulatingProgressListener>
+			<serviceID>cumulatingListenerService</serviceID>
+			<id>LaMMaCumulator</id>
+		</CumulatingProgressListener>
+		<StatusProgressListener>
+			<serviceID>statusListenerService</serviceID>
+			<id>LaMMaStatus</id>
+		</StatusProgressListener>
+	</ListenerConfigurations>
+</FlowConfiguration>
