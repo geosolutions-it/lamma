@@ -36,6 +36,8 @@ import org.slf4j.LoggerFactory;
 
 public class GeoStoreUtils {
 
+    private final static Logger LOGGER = LoggerFactory.getLogger(GeoStoreUtils.class);
+
     /**
      * using the passed FreeMarkerFilter and the root DataModel creates a
      * GeoStore Layer as JSONObject
@@ -491,37 +493,38 @@ public class GeoStoreUtils {
      */
     public static Map publishOnGeoStoreAction(final ProgressListenerForwarder listenerForwarder,
                                               final boolean failIgnore, final List<Map> rootList,
-                                              final Map argsMap, final Map map, final File configDir)
+                                              final Map argsMap, final Map cfgProps, final File configDir)
         throws Exception {
 
         // set workspace
-        String workspace = (String)map.get(WORKSPACE);
+        String workspace = (String)cfgProps.get(WORKSPACE);
         if (workspace == null) {
             throw new ActionException(Action.class, "Unable to continue without a " + WORKSPACE
                                                     + " defined, please check your configuration");
         }
 
-        final Logger logger = LoggerFactory.getLogger(GeoStoreUtils.class);
-
         // GEOSTORE
         // ////////////////////////////////////////////////////////////////
 
-        final String gstTemplateName = (String)map.get(GST_METADATA_TEMPLATE);
+        final String gstTemplateName = (String)cfgProps.get(GST_METADATA_TEMPLATE);
         if (gstTemplateName == null)
             throw new IllegalArgumentException("The key " + GST_METADATA_TEMPLATE
                                                + " property is not set, please fix the configuration.");
         final FreeMarkerFilter gstFilter = new FreeMarkerFilter(new File(configDir, gstTemplateName));
 
-        String gstUrl = (String)map.get(GSTURL);
+        String gstUrl = (String)cfgProps.get(GSTURL);
         if (gstUrl == null) {
+            LOGGER.warn("GeoStore URL is null. Forcing test configuration");
             gstUrl = "http://localhost:8383/geostore/rest/";
         }
-        String gstUsr = (String)map.get(GSTUID);
+        String gstUsr = (String)cfgProps.get(GSTUID);
         if (gstUsr == null) {
+            LOGGER.warn("GeoStore user is null. Forcing test configuration");
             gstUsr = "admin";
         }
-        String gstPwd = (String)map.get(GSTPWD);
+        String gstPwd = (String)cfgProps.get(GSTPWD);
         if (gstPwd == null) {
+            LOGGER.warn("GeoStore password is null. Forcing test configuration");
             gstPwd = "admin";
         }
         // init geostore parameter connection
@@ -533,25 +536,25 @@ public class GeoStoreUtils {
         // GeoStore
         try {
 
-            final String gstLayerTemplateName = (String)map.get(GST_LAYER_TEMPLATE);
+            final String gstLayerTemplateName = (String)cfgProps.get(GST_LAYER_TEMPLATE);
             if (gstLayerTemplateName == null) {
                 // use workspace as GeoStore Category and resource
-                publishOnGeoStore(logger, gstFilter, geostore, rootList, workspace);
+                publishOnGeoStore(LOGGER, gstFilter, geostore, rootList, workspace);
             } else {
                 final FreeMarkerFilter gstLayerFilter = new FreeMarkerFilter(new File(configDir,
                                                                                       gstLayerTemplateName));
                 // use workspace as GeoStore Category and resource
-                publishAndUpdateOnGeoStore(logger, gstFilter, gstLayerFilter, geostore, rootList, workspace);
+                publishAndUpdateOnGeoStore(LOGGER, gstFilter, gstLayerFilter, geostore, rootList, workspace);
             }
 
         } catch (Exception e) {
             if (failIgnore) {
-                if (logger.isErrorEnabled()) {
-                    logger.error(e.getLocalizedMessage(), e);
+                if (LOGGER.isWarnEnabled()) {
+                    LOGGER.warn(e.getLocalizedMessage(), e);
                 }
             } else {
-                if (logger.isErrorEnabled()) {
-                    logger.error(e.getLocalizedMessage(), e);
+                if (LOGGER.isErrorEnabled()) {
+                    LOGGER.error(e.getLocalizedMessage(), e);
                 }
                 ActionException ae = new ActionException(Action.class, e.getLocalizedMessage(), e.getCause());
                 listenerForwarder.failed(ae);

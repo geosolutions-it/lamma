@@ -30,14 +30,13 @@ import it.geosolutions.geobatch.flow.event.action.ActionException;
 import it.geosolutions.geobatch.imagemosaic.ImageMosaicAction;
 import it.geosolutions.geobatch.imagemosaic.ImageMosaicCommand;
 import it.geosolutions.geobatch.imagemosaic.ImageMosaicConfiguration;
+import it.geosolutions.geobatch.imagemosaic.granuleutils.GranuleRemover;
 import it.geosolutions.geobatch.lamma.geonetwork.GeoNetworkUtils;
 import it.geosolutions.geobatch.lamma.geostore.GeoStoreUtils;
-import it.geosolutions.geonetwork.GNClient;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder.Presentation;
-import it.geosolutions.geostore.services.rest.GeoStoreClient;
-import it.geosolutions.tools.freemarker.filter.FreeMarkerFilter;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.LinkedList;
@@ -59,6 +58,9 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class MeteosatUtils {
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(MeteosatUtils.class);
+
 
     public static Queue<EventObject> callImageMosaicAction(Logger logger, File tempDir, File configDir, ImageMosaicCommand imc){
 
@@ -169,7 +171,7 @@ public class MeteosatUtils {
     
         boolean failIgnore = configuration.isFailIgnored();
     
-        final Map map = configuration.getProperties();
+        final Map cfgProperties = configuration.getProperties();
     
         final File tempDir = (File)argsMap.get(ScriptingAction.TEMPDIR_KEY);
         final File configDir = (File)argsMap.get(ScriptingAction.CONFIGDIR_KEY);
@@ -177,9 +179,9 @@ public class MeteosatUtils {
             .get(ScriptingAction.LISTENER_KEY);
         final List<FileSystemEvent> events = (List)argsMap.get(ScriptingAction.EVENTS_KEY);
     
-        List<Map> rootList=GeoNetworkUtils.publishOnGeoNetworkAction(listenerForwarder,failIgnore,tempDir,configDir,events,argsMap, map);
+        List<Map> rootList=GeoNetworkUtils.publishOnGeoNetworkAction(listenerForwarder,failIgnore,tempDir,configDir,events,argsMap, cfgProperties);
         
-        argsMap=GeoStoreUtils.publishOnGeoStoreAction(listenerForwarder,failIgnore,rootList, argsMap,map,configDir);
+        argsMap=GeoStoreUtils.publishOnGeoStoreAction(listenerForwarder,failIgnore,rootList, argsMap, cfgProperties, configDir);
         
         
         listenerForwarder.completed();
@@ -187,52 +189,55 @@ public class MeteosatUtils {
     }
 
 
+    /**
+     * this is the list (a comma separated string) of prefixes present into
+     * the map. Each prefix represents a different mosaic for the Meteosat
+     * flow. Its settings should be set into the map as:<br>
+     * {prefix}{_setting}<br>
+     * where setting is one of the following:
+     * <ul>
+     * <li>_FILTER</li>
+     * <li>_SCRIPT</li>
+     * <li>_CALC</li>
+     * <li>_MOSAIC_DIR</li>
+     * <li>_STYLE</li>
+     * </ul>
+     */
+    private static final String PREFIX_LIST = "PREFIX_LIST";
+
+    private static final String DELETE_GRANULES_DELTA_DAYS = "DELETE_GRANULES_DELTA_DAYS";
+    private static final String DELETE_GRANULES_FROM_DISK = "DELETE_GRANULES_FROM_DISK";
+
+    private static final String PERFORM_GEOSERVER_RESET = "PERFORM_GEOSERVER_RESET";
+    /**
+     * The suffix to add to the prefix to obtain the MOSAIC_DIR KEY into the
+     * map this is the directory to use as mosaic base dir (the directory
+     * containing the mosaic)
+     */
+    private static final String MOSAIC_DIR = "_MOSAIC_DIR";
+    /**
+     * the style to apply into the mosaic
+     */
+    private static final String STYLE = "STYLE";
+    /**
+     * the default workspace
+     */
+    private static final String WORKSPACE = "WORKSPACE";
+    /**
+     * the key to get the GeoServer Url
+     */
+    private static final String GSURL = "GSURL";
+    /**
+     * the key to get the GeoServer user id
+     */
+    private static final String GSUID = "GSUID";
+    /**
+     * the key to get the GeoServer pass
+     */
+    private static final String GSPWD = "GSPWD";
+
     public static Map ImageMosaic(Map argsMap) throws Exception {
-        /**
-         * this is the list (a comma separated string) of prefixes present into
-         * the map. Each prefix represents a different mosaic for the Meteosat
-         * flow. Its settings should be set into the map as:<br>
-         * {prefix}{_setting}<br>
-         * where setting is one of the following:
-         * <ul>
-         * <li>_FILTER</li>
-         * <li>_SCRIPT</li>
-         * <li>_CALC</li>
-         * <li>_MOSAIC_DIR</li>
-         * <li>_STYLE</li>
-         * </ul>
-         */
-        final String PREFIX_LIST = "PREFIX_LIST";
-        /**
-         * The suffix to add to the prefix to obtain the MOSAIC_DIR KEY into the
-         * map this is the directory to use as mosaic base dir (the directory
-         * containing the mosaic)
-         */
-        final String MOSAIC_DIR = "_MOSAIC_DIR";
-        /**
-         * the style to apply into the mosaic
-         */
-        final String STYLE = "_STYLE";
-        /**
-         * the default workspace
-         */
-        final String WORKSPACE = "WORKSPACE";
-        /**
-         * the key to get the GeoServer Url
-         */
-        final String GSURL = "GSURL";
-        /**
-         * the key to get the GeoServer user id
-         */
-        final String GSUID = "GSUID";
-        /**
-         * the key to get the GeoServer pass
-         */
-        final String GSPWD = "GSPWD";
-    
-        final Logger logger = LoggerFactory
-            .getLogger("it.geosolutions.geobatch.action.scripting.ScriptingAction.class");
-    
+        
         final ScriptingConfiguration configuration = (ScriptingConfiguration)argsMap
             .get(ScriptingAction.CONFIG_KEY);
     
@@ -245,6 +250,7 @@ public class MeteosatUtils {
     
         final File tempDir = (File)argsMap.get(ScriptingAction.TEMPDIR_KEY);
         final File configDir = (File)argsMap.get(ScriptingAction.CONFIGDIR_KEY);
+
         final ProgressListenerForwarder listenerForwarder = (ProgressListenerForwarder)argsMap
             .get(ScriptingAction.LISTENER_KEY);
         final List<FileSystemEvent> events = (List<FileSystemEvent>)argsMap.get(ScriptingAction.EVENTS_KEY);
@@ -261,138 +267,87 @@ public class MeteosatUtils {
             throw new ActionException(Action.class, "Unable to continue without a " + WORKSPACE
                                                     + " defined, please check your configuration");
         }
-    
+
+        //=== GS stuff
+        String gsUrl = (String)map.get(GSURL);
+        // config.put(GSURL, gsUrl);
+        if (gsUrl == null) {
+            gsUrl="http://localhost:8080/geoserver";
+        }
+
+        String gsUsr = (String)map.get(GSUID);
+        if (gsUsr == null) {
+            gsUsr="admin";
+        }
+
+        String gsPwd = (String)map.get(GSPWD);
+        if (gsPwd == null) {
+            gsPwd="admin";
+        }
+
+        //===
         // used for geostore
-        final Queue<EventObject> imcL = new LinkedList<EventObject>();
-    
+        final Queue<EventObject> imcQueue = new LinkedList<EventObject>();
+
+        //===
+        String performGeoserverResetParam = (String)map.get(PERFORM_GEOSERVER_RESET);
+        boolean performGeoserverReset = "true".equalsIgnoreCase(performGeoserverResetParam);
+
+        //== DeleteGranules stuff
+        String deleteGranulesDeltaDaysParam = (String)map.get(DELETE_GRANULES_DELTA_DAYS);
+        Integer deleteGranulesDeltaDays = null;
+        if(deleteGranulesDeltaDaysParam != null) {
+            try {
+                deleteGranulesDeltaDays = Integer.valueOf(deleteGranulesDeltaDaysParam);
+            } catch (NumberFormatException e) {
+                LOGGER.error("Can't parse " + DELETE_GRANULES_DELTA_DAYS + " = " + deleteGranulesDeltaDaysParam);
+            }
+        }
+
+        String deleteGranulesFromDiskParam = (String)map.get(DELETE_GRANULES_FROM_DISK);
+        boolean deleteGranulesFromDisk = "true".equalsIgnoreCase(deleteGranulesFromDiskParam);
+        //===
+
         // read prefix list
         final String prefixList = (String)map.get(PREFIX_LIST);
         if (prefixList == null)
             throw new IllegalArgumentException("The key " + PREFIX_LIST
                                                + " property is not set, please fix the configuration.");
-        final String[] prefixes = prefixList.split(",");
-        for (String prefix : prefixes) {
-    
-            final WildcardFileFilter filter = new WildcardFileFilter("*"+prefix+"*");
-    
-            // building IMC to add new granule updating mosaic
-            final List<File> addFileList = new ArrayList<File>();
-            for (FileSystemEvent ev : events) {
-                final File inFile = ev.getSource();
-                if (filter.accept(inFile)) {
-                    addFileList.add(inFile);
-                }
-            }
-    
-            final String mosaicDirName = (String)map.get(prefix + MOSAIC_DIR);
-            if (mosaicDirName == null) {
-                if (failIgnore) {
-                    logger.error("The key " + prefix + MOSAIC_DIR
-                                 + " property is not set, please fix the configuration.");
-                    continue;
-                } else {
-                    throw new IllegalArgumentException(
-                                                       "The key "
-                                                           + prefix
-                                                           + MOSAIC_DIR
-                                                           + " property is not set, please fix the configuration.");
-                }
-            }
-            final File mosaicDir = new File(mosaicDirName);
-    
-            final ImageMosaicCommand imc = new ImageMosaicCommand(mosaicDir, addFileList, null);
-    
-            String gsUrl = (String)map.get(GSURL);
-            // config.put(GSURL, gsUrl);
-            if (gsUrl == null) {
-                gsUrl="http://localhost:8080/geoserver";
-            }
-    
-            String gsUsr = (String)map.get(GSUID);
-            if (gsUsr == null) {
-                gsUsr="admin";
-            }
-    
-            String gsPwd = (String)map.get(GSPWD);
-            if (gsPwd == null) {
-                gsPwd="admin";
-            }
-    
+        
+        for (String prefix : prefixList.split(",")) {
+
+            final ImageMosaicCommand imc = new ImageMosaicCommand();
             imc.setGeoserverPWD(gsPwd);
             imc.setGeoserverUID(gsUsr);
             imc.setGeoserverURL(gsUrl);
-    
-            // set style
-            final String style = (String)map.get(prefix + STYLE);
-            imc.setDefaultStyle(style != null ? style : "raster");
             imc.setDefaultNamespace(workspace != null ? workspace : "geosolutions");
-    
-            // TODO set specific settings for this mosaic (style, bb, etc...)
-            Object obj=map.get(prefix+"_SRS");
-            if (obj!=null){
-                imc.setTimeRegex(obj.toString());
-            } else {
-                obj=map.get("SRS");
-                if (obj!=null){
-                    imc.setCrs(obj.toString());
-                } else {
-                    imc.setCrs("EPSG:4326");
+            imc.setFinalReset(performGeoserverReset);
+
+            if ( ! fillIMC(imc, prefix, events, map, failIgnore) ) {
+                continue;
+            }
+            imcQueue.add(new EventObject(imc));
+
+            if(deleteGranulesDeltaDays != null) {
+                try {
+                    GranuleRemover remover = new GranuleRemover();
+                    remover.setDaysAgo(deleteGranulesDeltaDays);
+                    //remover.setTypeName();
+                    remover.enrich(imc);
+                    imc.setDeleteGranules(deleteGranulesFromDisk);
+                } catch (IOException ex) {
+                    LOGGER.error("Could not remove older granules: " + ex.getMessage(), ex);
+                } catch (IllegalStateException ex) {
+                    LOGGER.error("Error setting up the GranuleRemover: " + ex.getMessage() + " -- Please check your configuration");
                 }
             }
-            
-            obj=map.get(prefix+"_TIME_REGEX");
-            if (obj!=null){
-                imc.setTimeDimEnabled("true");
-                imc.setTimeRegex(obj.toString());
-                imc.setTimePresentationMode(Presentation.LIST.toString());
-            } else {
-                obj=map.get("TIME_REGEX");
-                if (obj!=null){
-                    imc.setTimeDimEnabled("true");
-                    imc.setTimeRegex(obj.toString());
-                    imc.setTimePresentationMode(Presentation.LIST.toString());
-                } else {
-                    imc.setTimeDimEnabled("false");
-                }
-            }
-            
-            obj=map.get(prefix+"_ELEV_REGEX");
-            if (obj!=null){
-                imc.setElevDimEnabled("true");
-                imc.setElevationRegex(obj.toString());
-                imc.setElevationPresentationMode(Presentation.LIST.toString());
-            } else {
-                obj=map.get("ELEV_REGEX");
-                if (obj!=null){
-                    imc.setElevDimEnabled("true");
-                    imc.setElevationRegex(obj.toString());
-                    imc.setElevationPresentationMode(Presentation.LIST.toString());
-                } else {
-                    imc.setElevDimEnabled("false");
-                }
-            }
-    
-            obj=map.get(prefix+"_DATASTORE_PROPS");
-            if (obj!=null){
-                imc.setDatastorePropertiesPath(obj.toString());
-            } else {
-                obj=map.get("DATASTORE_PROPS");
-                if (obj!=null){
-                    imc.setDatastorePropertiesPath(obj.toString());
-                } else {
-                    imc.setDatastorePropertiesPath(null);
-                }
-            }
-            
-            imcL.add(new EventObject(imc));
-    
         }
     
-        final Queue<EventObject> queue = callImageMosaicAction(logger, tempDir, configDir, imcL);
+        final Queue<EventObject> queue = callImageMosaicAction(LOGGER, tempDir, configDir, imcQueue);
         // if !success continue or break
         if (queue == null || queue.isEmpty()) {
             if (failIgnore) {
-                logger.error("Unable to get output from the ImageMosaicAction " + workspace);
+                LOGGER.error("Unable to get output from the ImageMosaicAction " + workspace);
             } else {
                 throw new ActionException(Action.class, "Unable to get output from the ImageMosaicAction "
                                                         + workspace);
@@ -447,4 +402,84 @@ public class MeteosatUtils {
         }
         return null;
     }
+
+    protected static boolean fillIMC(final ImageMosaicCommand imc, String prefix, final List<FileSystemEvent> events, final Map map, boolean failIgnore) throws IllegalArgumentException {
+
+        //=== MOSAIC DIR
+        final String mosaicDirName = (String)map.get(prefix + MOSAIC_DIR);
+        if (mosaicDirName == null) {
+            final String msg = "The key " + prefix + MOSAIC_DIR
+                             + " property is not set, please fix the configuration.";
+            if (failIgnore) {
+                LOGGER.error(msg);
+                return false;
+            } else {
+                throw new IllegalArgumentException(msg);
+            }
+        }
+        final File mosaicDir = new File(mosaicDirName);
+        imc.setBaseDir(mosaicDir);
+
+        //== building new granule list
+        final WildcardFileFilter filter = new WildcardFileFilter("*"+prefix+"*");
+
+        final List<File> addFileList = new ArrayList<File>();
+        for (FileSystemEvent ev : events) {
+            final File inFile = ev.getSource();
+            if (filter.accept(inFile)) {
+                addFileList.add(inFile);
+            }
+        }
+        imc.setAddFiles(addFileList);
+
+
+        // TODO set specific settings for this mosaic (style, bb, etc...)
+        imc.setDefaultStyle(getValueFromMap(map, prefix, STYLE, "raster"));
+        imc.setCrs(getValueFromMap(map, prefix, "SRS", "EPSG:4326"));
+        imc.setDatastorePropertiesPath(getValueFromMap(map, prefix, "DATASTORE_PROPS", null));
+
+        String timeregex = getValueFromMap(map, prefix, "TIME_REGEX", null);
+        if(timeregex != null) {
+            imc.setTimeDimEnabled("true");
+            imc.setTimeRegex(timeregex);
+            imc.setTimePresentationMode(getValueFromMap(map, prefix, "TIME_PRESENTATION", Presentation.LIST.name()));
+        } else {
+            imc.setTimeDimEnabled("false");
+        }
+
+        String elevregex = getValueFromMap(map, prefix, "ELEV_REGEX", null);
+        if(elevregex != null) {
+            imc.setElevDimEnabled("true");
+            imc.setElevationRegex(elevregex);
+            imc.setElevationPresentationMode(getValueFromMap(map, prefix, "ELEV_PRESENTATION", Presentation.LIST.name()));
+        } else {
+            imc.setElevDimEnabled("false");
+        }
+
+        return true;
+    }
+
+    /**
+     * Search a possibly customized key.
+     *
+     * At first, a customized key "PREFIX_KEY" is searched.
+     * If not found, a general "KEY" is searched.
+     *
+     * @return
+     */
+    private static String getValueFromMap(Map map, String prefix, String key, String defValue) {
+        // First search for a specific value for the key in that given prefix
+        Object obj=map.get(prefix+"_"+key);
+        if (obj!=null){
+            return obj.toString();
+        } else { // else search for the generic value
+            obj=map.get(key);
+            if (obj!=null){
+                return obj.toString();
+            } else {
+                return defValue;
+            }
+        }
+    }
+
 }
