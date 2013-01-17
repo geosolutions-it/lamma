@@ -1,8 +1,5 @@
 package it.geosolutions.geobatch.lamma.geostore;
 
-import it.geosolutions.filesystemmonitor.monitor.FileSystemEvent;
-import it.geosolutions.geobatch.action.scripting.ScriptingAction;
-import it.geosolutions.geobatch.action.scripting.ScriptingConfiguration;
 import it.geosolutions.geobatch.flow.event.ProgressListenerForwarder;
 import it.geosolutions.geobatch.flow.event.action.Action;
 import it.geosolutions.geobatch.flow.event.action.ActionException;
@@ -24,9 +21,9 @@ import it.geosolutions.tools.freemarker.FreeMarkerUtils;
 import it.geosolutions.tools.freemarker.filter.FreeMarkerFilter;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.codehaus.jettison.json.JSONArray;
@@ -60,7 +57,7 @@ public class GeoStoreUtils {
     public static final String EVENT_KEY = "event";
 
     public static Long appendNewResource(Logger logger, FreeMarkerFilter gstFilter, GeoStoreClient geostore,
-                                         List<Map> mapList, RESTCategory gstCat, String resourceName)
+                                         Collection<Map> mapList, RESTCategory gstCat, String resourceName)
         throws ActionException {
 
         String gstData = null;
@@ -97,7 +94,7 @@ public class GeoStoreUtils {
      * @throws ActionException
      */
     public static void publishOnGeoStore(Logger logger, FreeMarkerFilter gstFilter, GeoStoreClient geostore,
-                                         List<Map> mapList, String resourceName) throws ActionException {
+                                         Collection<Map> mapList, String resourceName) throws ActionException {
         publishOnGeoStore(logger, gstFilter, geostore, mapList, resourceName, resourceName);
     }
 
@@ -113,7 +110,7 @@ public class GeoStoreUtils {
      * @throws ActionException
      */
     public static void publishOnGeoStore(Logger logger, FreeMarkerFilter gstFilter, GeoStoreClient geostore,
-                                         List<Map> mapList, String categoryName, String resourceName)
+                                         Collection<Map> mapList, String categoryName, String resourceName)
         throws ActionException {
         RESTCategory gstCat = searchCategoryByName(geostore, categoryName);
         Long catId = null;
@@ -143,7 +140,7 @@ public class GeoStoreUtils {
      */
     public static void publishAndUpdateOnGeoStore(Logger logger, FreeMarkerFilter gstFilter,
                                                   FreeMarkerFilter layerFilter, GeoStoreClient geostore,
-                                                  List<Map> mapList, String resourceName)
+                                                  Collection<Map> mapList, String resourceName)
         throws ActionException {
 
         publishAndUpdateOnGeoStore(logger, gstFilter, layerFilter, geostore, mapList, resourceName,
@@ -164,7 +161,7 @@ public class GeoStoreUtils {
      */
     public static void publishAndUpdateOnGeoStore(Logger logger, FreeMarkerFilter gstFilter,
                                                   FreeMarkerFilter layerFilter, GeoStoreClient geostore,
-                                                  List<Map> mapList, String categoryName, String resourceName)
+                                                  Collection<Map> mapList, String categoryName, String resourceName)
         throws ActionException {
 
         RESTCategory gstCat = searchCategoryByName(geostore, categoryName);
@@ -277,7 +274,7 @@ public class GeoStoreUtils {
      * @throws ActionException
      */
     public static void updateResource(Logger logger, FreeMarkerFilter layerFilter, GeoStoreClient geostore,
-                                      List<Map> mapList, Long gstResId) throws ActionException {
+                                      Collection<Map> mapList, Long gstResId) throws ActionException {
         String gstData = null;
         try {
             String json = geostore.getData(gstResId);
@@ -492,7 +489,7 @@ public class GeoStoreUtils {
      * @throws Exception
      */
     public static Map publishOnGeoStoreAction(final ProgressListenerForwarder listenerForwarder,
-                                              final boolean failIgnore, final List<Map> rootList,
+                                              final boolean failIgnore, final Collection<Map> rootList,
                                               final Map argsMap, final Map cfgProps, final File configDir)
         throws Exception {
 

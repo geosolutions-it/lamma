@@ -33,6 +33,7 @@ import it.geosolutions.geobatch.imagemosaic.ImageMosaicConfiguration;
 import it.geosolutions.geobatch.imagemosaic.granuleutils.GranuleRemover;
 import it.geosolutions.geobatch.lamma.geonetwork.GeoNetworkUtils;
 import it.geosolutions.geobatch.lamma.geostore.GeoStoreUtils;
+import it.geosolutions.geobatch.lamma.misc.ImageMosaicUtils;
 import it.geosolutions.geoserver.rest.encoder.metadata.GSDimensionInfoEncoder.Presentation;
 
 import java.io.File;
@@ -178,13 +179,26 @@ public class MeteosatUtils {
         final ProgressListenerForwarder listenerForwarder = (ProgressListenerForwarder)argsMap
             .get(ScriptingAction.LISTENER_KEY);
         final List<FileSystemEvent> events = (List)argsMap.get(ScriptingAction.EVENTS_KEY);
-    
-        List<Map> rootList=GeoNetworkUtils.publishOnGeoNetworkAction(listenerForwarder,failIgnore,tempDir,configDir,events,argsMap, cfgProperties);
-        
-        argsMap=GeoStoreUtils.publishOnGeoStoreAction(listenerForwarder,failIgnore,rootList, argsMap, cfgProperties, configDir);
-        
-        
+
+        listenerForwarder.setTask("Loading metadata map");
+        listenerForwarder.progressing();
+
+        Map<File, Map> rootList = ImageMosaicUtils.loadMetadataMap(events);
+
+        listenerForwarder.setTask("Publishing to GeoNetwork");
+        listenerForwarder.progressing();
+
+        GeoNetworkUtils.publishOnGeoNetworkAction(listenerForwarder,failIgnore,tempDir,configDir, rootList, argsMap, cfgProperties);
+
+        listenerForwarder.setTask("Publishing to GeoStore");
+        listenerForwarder.progressing();
+
+        argsMap = GeoStoreUtils.publishOnGeoStoreAction(listenerForwarder,failIgnore, rootList.values(), argsMap, cfgProperties, configDir);
+                
+        listenerForwarder.setTask("Publishing complete");
+        listenerForwarder.progressing();
         listenerForwarder.completed();
+
         return argsMap;
     }
 

@@ -1,7 +1,7 @@
 /*
  *  GeoBatch - Open Source geospatial batch processing system
  *  http://code.google.com/p/geobatch/
- *  Copyright (C) 2007-2012 GeoSolutions S.A.S.
+ *  Copyright (C) 2007-2013 GeoSolutions S.A.S.
  *  http://www.geo-solutions.it
  *
  *  GPLv3 + Classpath exception
@@ -21,7 +21,6 @@
  */
 package it.geosolutions.geobatch.lamma.geonetwork;
 
-import it.geosolutions.filesystemmonitor.monitor.FileSystemEvent;
 import it.geosolutions.geobatch.flow.event.ProgressListenerForwarder;
 import it.geosolutions.geobatch.flow.event.action.Action;
 import it.geosolutions.geobatch.flow.event.action.ActionException;
@@ -34,22 +33,17 @@ import it.geosolutions.geonetwork.util.GNInsertConfiguration;
 import it.geosolutions.tools.freemarker.filter.FreeMarkerFilter;
 import it.geosolutions.tools.freemarker.FreeMarkerUtils;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.thoughtworks.xstream.XStream;
 import it.geosolutions.geonetwork.op.GNMetadataGetInfo.MetadataInfo;
 import it.geosolutions.geonetwork.util.GNPrivConfiguration;
 import java.util.StringTokenizer;
+import org.apache.commons.lang.StringUtils;
 
 public class GeoNetworkUtils {
 
@@ -96,58 +90,59 @@ public class GeoNetworkUtils {
     /**
      * Script Main "execute" function
      *
+     * May enrich the metadata maps with the UUID of the geonetwork metadata
      */
-    public static List<Map> publishOnGeoNetworkAction(final ProgressListenerForwarder listenerForwarder,
+    public static void publishOnGeoNetworkAction(final ProgressListenerForwarder listenerForwarder,
             boolean failIgnore, final File tempDir,
             final File configDir,
-            final List<FileSystemEvent> events, Map argsMap,
+            final Map<File, Map> rootList, Map argsMap,
             final Map mapFromConfig) throws Exception {
-
-
-        // set workspace
-        String workspace = (String) mapFromConfig.get(WORKSPACE);
-        if (workspace == null) {
-            throw new ActionException(Action.class, "Unable to continue without a " + WORKSPACE
-                    + " defined, please check your configuration");
-        }
 
         final Logger logger = LoggerFactory.getLogger(GeoNetworkUtils.class);
 
-        // used for geostore
-        final List<Map> rootList = new ArrayList<Map>();
+        if( ! checkGNParams(mapFromConfig) ) {
+            if( logger.isWarnEnabled()) {
+                logger.warn("GeoNetwork configuration is incomplete, GN will not be used");
+            }
+            return;       
+        }
 
-        for (FileSystemEvent event : events) {
+        GNClient geonetworkClient = createClientAndLogin(mapFromConfig);
+        if (geonetworkClient == null) {
+            throw new ActionException(Action.class, "Unable to connect to GeoNetwork");
+        }
+        
+        final String gnTemplateName = (String) mapFromConfig.get(GN_METADATA_TEMPLATE);
+        if (gnTemplateName == null) {
+            throw new IllegalArgumentException("The key " + GN_METADATA_TEMPLATE
+                    + " property is not set, please fix the configuration.");
+        }
 
-            File imageMosaicOutput = event.getSource();
+        final FreeMarkerFilter gnFilter = new FreeMarkerFilter(new File(configDir, gnTemplateName));
+
+        GNInsertConfiguration insertConfiguration = createGNInsertConfiguration(mapFromConfig);
+        GNPrivConfiguration   privConfiguration   = createGNPrivConfiguration(mapFromConfig);
+
+        for (Map.Entry<File, Map> fileMetadata : rootList.entrySet()) {
+            File file = fileMetadata.getKey();
+            Map metadataMap = fileMetadata.getValue();
 
             if (logger.isDebugEnabled()) {
-                logger.debug("Running GeoNetwork processing on " + imageMosaicOutput);
+                logger.debug("Running GeoNetwork processing on " + file);
             }
 
-            // GEONETWORK
-            // ////////////////////////////////////////////////////////////////
-
-            final String gnTemplateName = (String) mapFromConfig.get(GN_METADATA_TEMPLATE);
-            if (gnTemplateName == null) {
-                throw new IllegalArgumentException("The key " + GN_METADATA_TEMPLATE
-                        + " property is not set, please fix the configuration.");
-            }
-
-            final FreeMarkerFilter gnFilter = new FreeMarkerFilter(new File(configDir, gnTemplateName));
-
-            GNInsertConfiguration insertConfiguration = createGNInsertConfiguration(mapFromConfig);
-            GNPrivConfiguration   privConfiguration   = createGNPrivConfiguration(mapFromConfig);
-
+            listenerForwarder.setTask("GN: publishing " + metadataMap.get(ImageMosaicOutput.LAYERNAME));
+            listenerForwarder.progressing();
+        
             try {
-                GNClient geonetworkClient = createClientAndLogin(mapFromConfig);
-                if (geonetworkClient == null) {
-                    throw new ActionException(Action.class, "Unable to connect to geonetwork");
-                }
-
-                Map root = GeoNetworkUtils.publishOnGeoNetwork(tempDir, imageMosaicOutput, gnFilter,
+                String gnUuid = GeoNetworkUtils.publishOnGeoNetwork(metadataMap, tempDir, gnFilter,
                         geonetworkClient, insertConfiguration, privConfiguration,
                         failIgnore, logger);
-                rootList.add(root);
+
+                if(gnUuid != null) {
+                    metadataMap.put(GeoNetworkUtils.GN_UUID, gnUuid);
+                }
+
             } catch (ActionException e) {
                 if (failIgnore) {
                     logger.error(e.getLocalizedMessage(), e);
@@ -158,54 +153,46 @@ public class GeoNetworkUtils {
                 }
             }
         }
-
-        listenerForwarder.completed();
-        return rootList;
     }
 
-    public static Map publishOnGeoNetwork(File tempDir, File mosaicOutput, FreeMarkerFilter gnFilter,
-            GNClient geonetwork, 
-            GNInsertConfiguration insertConfiguration, GNPrivConfiguration   privConfiguration,
+
+    /**
+     * @return the UUID of the metadata in GeoNetwork
+     */
+    public static String publishOnGeoNetwork(Map root, File tempDir, FreeMarkerFilter gnFilter,
+            GNClient geonetwork,
+            GNInsertConfiguration insertConfiguration, GNPrivConfiguration privConfiguration,
             boolean failIgnore, Logger logger)
-            throws ActionException, IllegalArgumentException, IOException {
+                throws ActionException, IllegalArgumentException, IOException {
 
         // use Freemarker to produce metadata for geoNetwork
         final File gnMetadataFile;
-        FileInputStream fis = null;
-        BufferedInputStream bis = null;
-        Map root = null;
+
         String resourceName;
         try {
-            XStream xstream = new XStream();
-            fis = new FileInputStream(mosaicOutput);
-            bis = new BufferedInputStream(fis);
-            root = (Map) xstream.fromXML(bis);
             resourceName = (String) root.get(ImageMosaicOutput.LAYERNAME);
             gnMetadataFile = File.createTempFile(resourceName, ".xml", tempDir);
             FreeMarkerUtils.freeMarker(root, gnFilter, gnMetadataFile);
         } catch (Exception e) {
             throw new ActionException(Action.class, e.getLocalizedMessage(), e);
-        } finally {
-            IOUtils.closeQuietly(bis);
-            IOUtils.closeQuietly(fis);
         }
 
         try {
-            geoNetworkUpdate(geonetwork, root, gnMetadataFile, resourceName, insertConfiguration, privConfiguration);
-            root.put(GeoNetworkUtils.GN_UUID, resourceName);
+            geoNetworkUpdate(geonetwork, gnMetadataFile, resourceName, insertConfiguration, privConfiguration);
+            return resourceName;
+//            root.put(GeoNetworkUtils.GN_UUID, resourceName);
         } catch (Exception e) {
             if (failIgnore) {
                 if (logger != null && logger.isErrorEnabled()) {
                     logger.error(e.getLocalizedMessage(), e);
                 }
+                return null;
                 // continue;
                 // try publishing on GeoStore at least
             } else {
                 throw new ActionException(Action.class, e.getLocalizedMessage(), e);
             }
         }
-
-        return root;
     }
 
     /**
@@ -213,7 +200,7 @@ public class GeoNetworkUtils {
      *
      * @throws ActionException
      */
-    public static void geoNetworkUpdate(GNClient client, Map root, File gnMetadataFile, String metadataUuid,
+    public static void geoNetworkUpdate(GNClient client, File gnMetadataFile, String metadataUuid,
             GNInsertConfiguration insertConfiguration, GNPrivConfiguration privConfiguration)
             throws ActionException {
 
@@ -259,6 +246,19 @@ public class GeoNetworkUtils {
         } else {
             return client;
         }
+    }
+
+    public static boolean checkGNParams(final Map map) {
+        if (StringUtils.isBlank((String) map.get(GNURL))) {
+            return false;
+        }
+        if (StringUtils.isBlank((String) map.get(GNUID))) {
+            return false;
+        }
+        if (StringUtils.isBlank((String) map.get(GNPWD))) {
+            return false;
+        }
+        return true;
     }
 
 

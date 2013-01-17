@@ -22,7 +22,8 @@
 package it.geosolutions.geobatch.lamma.geostore;
 
 import it.geosolutions.geobatch.imagemosaic.ImageMosaicOutput;
-import it.geosolutions.geobatch.lamma.meteosat.GeoNetworkUtils;
+import it.geosolutions.geobatch.lamma.geonetwork.GeoNetworkUtils;
+
 
 import java.util.Map;
 import java.util.TreeSet;

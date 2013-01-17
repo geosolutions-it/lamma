@@ -48,6 +48,7 @@ import java.util.Queue;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -273,6 +274,7 @@ public class MeteosatUtilsTest {
      * @throws Exception
      */
     @Test
+    @Ignore
     public void airMass() throws Exception {
         execute(argsMap);
     }

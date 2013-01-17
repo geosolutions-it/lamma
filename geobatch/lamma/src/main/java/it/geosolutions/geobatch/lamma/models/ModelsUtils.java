@@ -9,10 +9,12 @@ import it.geosolutions.geobatch.flow.event.action.ActionException;
 import it.geosolutions.geobatch.imagemosaic.ImageMosaicOutput;
 import it.geosolutions.geobatch.lamma.geonetwork.GeoNetworkUtils;
 import it.geosolutions.geobatch.lamma.geostore.GeoStoreUtils;
+import it.geosolutions.geobatch.lamma.misc.ImageMosaicUtils;
 import it.geosolutions.geostore.services.rest.GeoStoreClient;
 import it.geosolutions.tools.freemarker.filter.FreeMarkerFilter;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -21,8 +23,8 @@ import org.slf4j.LoggerFactory;
 
 public class ModelsUtils {
     
-    public static String resolveResourceName(List<Map> rootList){
-        String storeName=(String)rootList.get(0).get(ImageMosaicOutput.STORENAME);
+    public static String resolveResourceName(Collection<Map> rootList){
+        String storeName=(String)rootList.iterator().next().get(ImageMosaicOutput.STORENAME);
         return resolveResourceName(storeName);
     }
     
@@ -44,18 +46,32 @@ public class ModelsUtils {
             failIgnore = false;
         }
     
-        final Map map = configuration.getProperties();
+        final Map cfgProperties = configuration.getProperties();
     
         final File tempDir = (File)argsMap.get(ScriptingAction.TEMPDIR_KEY);
         final File configDir = (File)argsMap.get(ScriptingAction.CONFIGDIR_KEY);
         final ProgressListenerForwarder listenerForwarder = (ProgressListenerForwarder)argsMap
             .get(ScriptingAction.LISTENER_KEY);
         final List<FileSystemEvent> events = (List)argsMap.get(ScriptingAction.EVENTS_KEY);
-    
-        List<Map> rootList=GeoNetworkUtils.publishOnGeoNetworkAction(listenerForwarder,failIgnore,tempDir,configDir,events,argsMap, map);
-        
-        argsMap=ModelsUtils.publishOnGeoStoreAction(listenerForwarder,failIgnore,rootList, argsMap,map,configDir);
-        
+
+        listenerForwarder.setTask("Loading metadata map");
+        listenerForwarder.progressing();
+
+        Map<File, Map> rootList = ImageMosaicUtils.loadMetadataMap(events);
+
+        listenerForwarder.setTask("Publishing to GeoNetwork");
+        listenerForwarder.progressing();
+
+        GeoNetworkUtils.publishOnGeoNetworkAction(listenerForwarder,failIgnore,tempDir,configDir, rootList, argsMap, cfgProperties);
+
+        listenerForwarder.setTask("Publishing to GeoStore");
+        listenerForwarder.progressing();
+
+        argsMap = ModelsUtils.publishOnGeoStoreAction(listenerForwarder,failIgnore, rootList.values(), argsMap, cfgProperties, configDir);
+
+        listenerForwarder.setTask("Publishing complete");
+        listenerForwarder.progressing();
+        listenerForwarder.completed();
         
         listenerForwarder.completed();
         return argsMap;
@@ -73,10 +89,10 @@ public class ModelsUtils {
      * @return
      * @throws Exception
      */
-    public static Map publishOnGeoStoreAction(final ProgressListenerForwarder listenerForwarder , final boolean failIgnore, final List<Map> rootList , final Map argsMap, final Map map, final File configDir) throws Exception {
+    public static Map publishOnGeoStoreAction(final ProgressListenerForwarder listenerForwarder , final boolean failIgnore, final Collection<Map> rootList , final Map argsMap, final Map cfgProps, final File configDir) throws Exception {
     
         // set workspace
-        String workspace = (String)map.get(GeoStoreUtils.WORKSPACE);
+        String workspace = (String)cfgProps.get(GeoStoreUtils.WORKSPACE);
         if (workspace == null) {
             throw new ActionException(Action.class, "Unable to continue without a " + GeoStoreUtils.WORKSPACE
                                                     + " defined, please check your configuration");
@@ -88,7 +104,7 @@ public class ModelsUtils {
         // GEOSTORE
         // ////////////////////////////////////////////////////////////////
     
-        final String gstTemplateName = (String)map.get(GeoStoreUtils.GST_METADATA_TEMPLATE);
+        final String gstTemplateName = (String)cfgProps.get(GeoStoreUtils.GST_METADATA_TEMPLATE);
         if (gstTemplateName == null)
             throw new IllegalArgumentException("The key " + GeoStoreUtils.GST_METADATA_TEMPLATE
                                                + " property is not set, please fix the configuration.");
@@ -96,15 +112,15 @@ public class ModelsUtils {
     
         
     
-        String gstUrl = (String)map.get(GeoStoreUtils.GSTURL);
+        String gstUrl = (String)cfgProps.get(GeoStoreUtils.GSTURL);
         if (gstUrl == null) {
             gstUrl = "http://localhost:8383/geostore/rest/";
         }
-        String gstUsr = (String)map.get(GeoStoreUtils.GSTUID);
+        String gstUsr = (String)cfgProps.get(GeoStoreUtils.GSTUID);
         if (gstUsr == null) {
             gstUsr = "admin";
         }
-        String gstPwd = (String)map.get(GeoStoreUtils.GSTPWD);
+        String gstPwd = (String)cfgProps.get(GeoStoreUtils.GSTPWD);
         if (gstPwd == null) {
             gstPwd = "admin";
         }
@@ -116,7 +132,7 @@ public class ModelsUtils {
     
         // GeoStore
         try {
-            final String gstLayerTemplateName = (String)map.get(GeoStoreUtils.GST_LAYER_TEMPLATE);
+            final String gstLayerTemplateName = (String)cfgProps.get(GeoStoreUtils.GST_LAYER_TEMPLATE);
             if (gstLayerTemplateName == null) {
                 // use workspace as GeoStore Category and resource
                 GeoStoreUtils.publishOnGeoStore(logger, gstFilter, geostore, rootList, workspace,resolveResourceName(rootList));
