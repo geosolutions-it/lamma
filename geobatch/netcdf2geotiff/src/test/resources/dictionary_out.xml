@@ -1,0 +1,37 @@
+<it.geosolutions.geobatch.metocs.netcdf2geotiff.checker.MetocsBaseDictionary>
+  <LOGGER class="org.slf4j.impl.Log4jLoggerAdapter" defined-in="it.geosolutions.geobatch.metocs.netcdf2geotiff.MetocsDictionary">
+    <name>it.geosolutions.geobatch.metocs.netcdf2geotiff.MetocsDictionary</name>
+    <traceCapable>true</traceCapable>
+  </LOGGER>
+  <dictionary>
+    <entry>
+      <string>VAR_1</string>
+      <map>
+        <entry>
+          <string>TIME</string>
+          <string>Time</string>
+        </entry>
+        <entry>
+          <string>LAT</string>
+          <string>lat</string>
+        </entry>
+        <entry>
+          <string>LON</string>
+          <string>lon</string>
+        </entry>
+        <entry>
+          <string>UOM</string>
+          <string>uom</string>
+        </entry>
+        <entry>
+          <string>Z</string>
+          <string>Elevation</string>
+        </entry>
+      </map>
+    </entry>
+  </dictionary>
+  <LOGGER class="org.slf4j.impl.Log4jLoggerAdapter">
+    <name>it.geosolutions.geobatch.metocs.netcdf2geotiff.checker.MetocsBaseDictionary</name>
+    <traceCapable>true</traceCapable>
+  </LOGGER>
+</it.geosolutions.geobatch.metocs.netcdf2geotiff.checker.MetocsBaseDictionary>
