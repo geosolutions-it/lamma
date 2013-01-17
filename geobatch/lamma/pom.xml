@@ -7,14 +7,21 @@
                                http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<!-- =========================================================== -->
-	<!-- Module Description -->
-	<!-- =========================================================== -->
+  <parent>
+	    <groupId>it.geosolutions.geobatch.lamma</groupId>
+	    <artifactId>gb-lamma</artifactId>
+	    <version>1.3-RC2</version>
+  </parent>
+
 	<groupId>it.geosolutions.geobatch.lamma</groupId>
-	<artifactId>gb-actions-lamma</artifactId>
-	<packaging>jar</packaging>
-	<version>1.1-SNAPSHOT</version>
-	<name>GeoBatch LaMMa misc</name>
+	<artifactId>gb-lamma-utils</artifactId>
+	<version>1.3-RC2</version>
+
+    <packaging>jar</packaging>
+
+	<name>LaMMa utils for GeoBatch flows</name>
+	<description>GeoSolutions GeoBatch LaMMa misc.</description>
+
 	<url>http://www.geo-solutions.it/maven_reports/gb/</url><!--<url>flowmanagers/</url> -->
 
 	<scm>
@@ -23,10 +30,6 @@
     </connection>
 		<url>http://svn.geotools.org/geotools/trunk/gt/modules/<!--flowmanagers--></url>
 	</scm>
-
-	<description>
-    GeoSolutions GeoBatch LaMMa misc.
-  </description>
 
 	<licenses>
 		<license>
@@ -43,6 +46,7 @@
 			<url>ftp://maven.geo-solutions.it</url>
 		</repository>
 	</distributionManagement>
+
 	<!-- Profiles set on the command-line overwrite default properties. -->
 	<profiles>
 		<profile>
@@ -119,144 +123,128 @@
 		</profile>
 	</profiles>
 
-	<properties>
-		<gb.version>1.3-SNAPSHOT</gb.version>
-		<tools.version>1.1-SNAPSHOT</tools.version>
-		<geostore.version>1.0-SNAPSHOT</geostore.version>
-		<metocs.version>1.3-SNAPSHOT</metocs.version>
-	</properties>
-
 	<!-- =========================================================== -->
-	<!-- Dependency Management -->
 	<!-- =========================================================== -->
 	<dependencies>
+
+        <!-- =========================================================== -->
+        <!-- Specific -->
+
 		<dependency>
 			<groupId>it.geosolutions.geobatch.metocs</groupId>
 			<artifactId>gb-action-metocs-netcdf2geotiff</artifactId>
-			<version>${metocs.version}</version>
 		</dependency>
+
+        <!-- =========================================================== -->
+        <!-- GeoBatch -->
 
 		<dependency>
 			<groupId>it.geosolutions.geobatch</groupId>
 			<artifactId>gb-action-imagemosaic</artifactId>
-			<version>${gb.version}</version>
 		</dependency>
 
-		<dependency>
-			<groupId>it.geosolutions.geobatch</groupId>
-			<artifactId>gb-action-geonetwork</artifactId>
-			<version>${gb.version}</version>
-		</dependency>
+        <dependency>
+            <groupId>it.geosolutions</groupId>
+            <artifactId>geonetwork-manager</artifactId>
+        </dependency>
 
 		<dependency>
 			<groupId>it.geosolutions.geobatch</groupId>
 			<artifactId>gb-action-scripting</artifactId>
-			<version>${gb.version}</version>
 		</dependency>
+
+		<dependency>
+            <groupId>it.geosolutions.geobatch</groupId>
+            <artifactId>gb-action-geonetwork</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>it.geosolutions.geobatch</groupId>
+  			<artifactId>gb-action-geotiff</artifactId>
+		</dependency>
+
+        <!-- =========================================================== -->
+        <!-- GB Tools -->
 
 		<dependency>
 			<groupId>it.geosolutions.tools</groupId>
 			<artifactId>tools-io</artifactId>
-			<version>${tools.version}</version>
 		</dependency>
 		
 		<dependency>
 			<groupId>it.geosolutions.tools</groupId>
 			<artifactId>tools-freemarker</artifactId>
-			<version>${tools.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>it.geosolutions.tools</groupId>
 			<artifactId>tools-ant</artifactId>
-			<version>${tools.version}</version>
+            <version>1.1.2</version>
 		</dependency>
+
 
 		<!-- =========================================================== -->
 		<!-- GeoStore -->
-		<!-- =========================================================== -->
 
 		<dependency>
 			<groupId>it.geosolutions.geostore</groupId>
 			<artifactId>geostore-model</artifactId>
-			<version>${geostore.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>it.geosolutions.geostore</groupId>
 			<artifactId>geostore-services-api</artifactId>
-			<version>${geostore.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>it.geosolutions.geostore</groupId>
 			<artifactId>geostore-rest-api</artifactId>
-			<version>${geostore.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>it.geosolutions.geostore</groupId>
 			<artifactId>geostore-rest-client</artifactId>
-			<version>${geostore.version}</version>
 		</dependency>
 
-		<!--  JSON To modify geostore maps -->
-		<!--dependency>
-            <groupId>net.sf.json-lib</groupId>
-            <artifactId>json-lib</artifactId>
-            <version>2.4</version>
-            <type>jar</type>
-            <classifier>jdk15</classifier>
-            <scope>compile</scope>
-        </dependency-->
+		<!-- =========================================================== -->
+		<!-- Test stuff -->
 
-		<!-- OVERVIEW + RETILE -->
-		<dependency>
-			<groupId>it.geosolutions.geobatch</groupId>
-  			<artifactId>gb-action-geotiff</artifactId>
-  			<version>${gb.version}</version>
-		</dependency>
-		
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-sample-data</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.8.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.easymock</groupId>
+            <artifactId>easymock</artifactId>
+            <version>2.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.easymock</groupId>
+            <artifactId>easymockclassextension</artifactId>
+            <version>2.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.mockrunner</groupId>
+            <artifactId>mockrunner</artifactId>
+            <version>0.3.1</version>
+            <scope>test</scope>
+        </dependency>
 
-	<!-- TEST -->
-	<dependency>
-		<groupId>org.geotools</groupId>
-		<artifactId>gt-sample-data</artifactId>
-		<version>8-SNAPSHOT</version>
-		<scope>test</scope>
-	</dependency>
-	<dependency>
-		<groupId>junit</groupId>
-		<artifactId>junit</artifactId>
-		<version>4.8.2</version>
-		<scope>test</scope>
-	</dependency>
-	<dependency>
-		<groupId>org.easymock</groupId>
-		<artifactId>easymock</artifactId>
-		<version>2.3</version>
-		<scope>test</scope>
-	</dependency>
-	<dependency>
-		<groupId>org.easymock</groupId>
-		<artifactId>easymockclassextension</artifactId>
-		<version>2.3</version>
-		<scope>test</scope>
-	</dependency>
-	<dependency>
-		<groupId>com.mockrunner</groupId>
-		<artifactId>mockrunner</artifactId>
-		<version>0.3.1</version>
-		<scope>test</scope>
-	</dependency>
-	<!-- ===LOG4J==================================================== -->
-	<dependency>
-		<groupId>log4j</groupId>
-		<artifactId>log4j</artifactId>
-		<version>1.2.16</version>
-		<scope>test</scope>
-	</dependency>
+        <!-- ===LOG4J==================================================== -->
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.16</version>
+            <scope>test</scope>
+        </dependency>
 
-</dependencies>
-
-	<!--modules> <module>lamma</module> </modules -->
+    </dependencies>
 
 	<build>
 		<plugins>
