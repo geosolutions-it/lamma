@@ -85,6 +85,13 @@
         <artifactId>gb-action-geonetwork</artifactId>
     </dependency>
 
+    <!-- quick update for LAMMA - we'll use 1.1.1 in GB1.3 final -->
+        <dependency>
+            <groupId>it.geosolutions</groupId>
+            <artifactId>geonetwork-manager</artifactId>
+            <version>1.1.1-SNAPSHOT</version>
+        </dependency>
+
     <dependency>
         <groupId>it.geosolutions.geobatch</groupId>
         <artifactId>gb-action-geoserver</artifactId>
