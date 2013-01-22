@@ -25,9 +25,9 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +70,7 @@ public class ImageMosaicUtils {
      */
     public static Map<File, Map> loadMetadataMap(final List<FileSystemEvent> events) throws IOException {
 
-        final Map<File, Map> ret = new HashMap<File, Map>();
+        final Map<File, Map> ret = new TreeMap<File, Map>();
 
         for (FileSystemEvent event : events) {
 
