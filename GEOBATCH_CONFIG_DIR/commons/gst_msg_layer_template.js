@@ -4,10 +4,10 @@
   </#if>
 </#function>
 {
-           "format":"image/png",
+           "format":"image/gif",
            "group":"${WORKSPACE}",<#-- FIXED -->
            "name":"${WORKSPACE}:${LAYERNAME}",<#-- FIXED -->
-           "opacity":0.7,
+           "opacity":1.0,
            "selected":false,
            "source":"${WORKSPACE}", <#-- FIXED -->
            "styles":["${DEFAULT_STYLE}"],
@@ -19,5 +19,19 @@
            "srs":"EPSG:900913",
            "transitionEffect":"resize"
            <#if ELEVATION_DOMAIN??>,"elevation":"${ELEVATION_DOMAIN[0]}"</#if><#-- FIXED -->
-}
+},{
+    "format":"image/png",
+    "group":"Limiti mondiali",
+    "name":"lamma:confini_mondiali",
+    "selected":false,                   
+    "source":"LaMMA_confini", 
+    "styles":["confini"],
+    "style":["confini"],
+    "title":"Confini",
+    "transparent":true,
+    "visibility":true,
+    "ratio":1,
+    "getGraph": false,
+    "srs":"EPSG:900913"
+    } 
         

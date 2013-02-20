@@ -153,7 +153,7 @@
                         <properties>
 				<entry>
 				  <string>defaultStyle</string>
-				  <string>garrows</string>
+				  <string>wind_arrow_palette</string>
 				</entry>
                                 <entry>
                                   <string>imageNameRegex</string>
@@ -275,8 +275,12 @@
 			<projectionPolicy>NONE</projectionPolicy>
 			<!-- METADATA -->
 			<timeDimEnabled>true</timeDimEnabled>
+            
 			<!-- LIST, CONTINUOUS_INTERVAL, DISCRETE_INTERVAL -->
-			<timePresentationMode>LIST</timePresentationMode>
+            <!-- timePresentationMode>CONTINUOUS_INTERVAL</timePresentationMode -->
+            <timePresentationMode>DISCRETE_INTERVAL</timePresentationMode>
+            <timeDiscreteInterval>3600000</timeDiscreteInterval>
+            
 			<elevDimEnabled>true</elevDimEnabled>
 			<elevationPresentationMode>LIST</elevationPresentationMode>
 			<!--  <dirName>DIR</dirName>-->
@@ -377,7 +381,10 @@
 				    <string>WORKSPACE</string>
 				    <string>ARW_9KM_RUN12</string>
 				  </entry>
-				  
+				  <entry>
+				    <string>GNPRIV</string>
+				    <string>1_0156</string>
+				  </entry>
 				  <entry>
 				    <string>GNPWD</string>
 				    <!--string>admin</string-->
@@ -400,7 +407,7 @@
 				  
 				  <entry>
 				    <string>GSTPWD</string>
-				    <string>admin</string>
+				    <string>j6Knno8r</string>
 				  </entry>
 				  <entry>
 				    <string>GSTUID</string>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FlowConfiguration>
-	<id>meteosat_msg2</id>
+	<id>meteosat_msg3</id>
 	<description>Flow for Meteosat</description>
 	<name>meteosat</name>
 	
@@ -12,7 +12,7 @@
 	<autorun>true</autorun>
 	
 	<EventGeneratorConfiguration>
-		<wildCard>MSG2_*.*</wildCard>
+		<wildCard>MSG3_*.*</wildCard>
 		<!--watchDirectory>meteosat_msg2/in</watchDirectory-->
 		<watchDirectory>/opt/ingestion/</watchDirectory>
 		<osType>OS_UNDEFINED</osType>
@@ -57,7 +57,7 @@
 				  </entry>
 				  <entry>
 				    <string>WORKSPACE</string>
-				    <string>MSG2</string>
+				    <string>MSG3</string>
 				  </entry>
 				  
 				  <entry>
@@ -149,7 +149,7 @@
 				  </entry>
 				  <entry>
 				    <string>Airmass_MOSAIC_DIR</string>
-				    <string>/opt/data/msg2/MSG2_Airmass</string>
+				    <string>/opt/data/msg3/MSG3_Airmass</string>
 				  </entry>
 				  
 				  <!--     Day Natural Colors
@@ -171,54 +171,52 @@
 				  </entry>
 				  <entry>
 				    <string>NatColours_MOSAIC_DIR</string>
-				    <string>/opt/data/msg2/MSG2_NatColours</string>
+				    <string>/opt/data/msg3/MSG3_NatColours</string>
 				  </entry>
 				  
 				  <!--     Day Microphysics
 				  R = Channel 02 (VIS0.8)
 				  G = Channel 04r (IR3.9, solar component)
 				  B = Channel 09 (IR10.8)
-				  Applications: Cloud Analysus, Convection, Fog, Snow, Fires
-				  
-					   Day Solar
+				  Applications: Cloud Analysus, Convection, Fog, Snow, Fires -->
+                  
+				  <!--	   Day Solar
 				  R = Channel 02 (VIS0.8)
 				  G = Channel 03 (NIR1.6)
 				  B = Channel 04r (IR3.9, solar component)
-				  Applications: Cloud Analysus, Convection, Fog, Snow, Fires
+				  Applications: Cloud Analysus, Convection, Fog, Snow, Fires -->
 				  
-					   Convective Storms
+				  <!--	   Convective Storms
 				  R = Difference 05 - 06 (WV6.2 - WV7.3)
 				  G = Difference 04 - 09 (IR3.9* - IR10.8)
 				  B = Difference 03 - 01 (NIR1.6 - VIS0.6)
 				  *Note: CO2-corrected brightness temperature of channel 04 (IR3.9)
-				  Applications: Severe Storms
+				  Applications: Severe Storms -->
 				  
-					  HRV Clouds
+				  <!--	  HRV Clouds
 				  R = Channel 12 (HRV)
 				  G = Channel 12 (HRV)
 				  B = Channel 09i (IR10.8i)
-				  Applications: Clouds, Convection
+				  Applications: Clouds, Convection -->
 				  
-					  HRV Fog
+				  <!--	  HRV Fog
 				  R = Channel 03 (NIR1.6)
 				  G = Channel 12 (HRV)
 				  B = Channel 12 (HRV)
-				  Applications: Snow, Fog
-				  
-					  HRV Severe Storms
+				  Applications: Snow, Fog -->
+
+				  <!--	  HRV Severe Storms
 				  R = Channel 12 (HRV)
 				  G = Channel 12 (HRV)
 				  B = BTD 09-04 (IR10.8-IR3.9)
-				  Applications: Severe Storms
-				  -->
+				  Applications: Severe Storms -->
 				  
 				  <!--     Dust (night & day)
 				  R = Difference 10 - 09 (IR12.0 – IR10.8)
 				  G = Difference 09 – 07 (IR10.8 – IR8.7)
 				  B = Difference 09 (IR10.8)
 
-				  Applications: Dust (day and night), Contrails
-				  -->
+				  Applications: Dust (day and night), Contrails -->
                     
 				  <entry>
 				    <string>Dust_FILTER</string>
@@ -234,7 +232,7 @@
 				  </entry>
 				  <entry>
 				    <string>Dust_MOSAIC_DIR</string>
-				    <string>/opt/data/msg2/MSG2_Dust</string>
+				    <string>/opt/data/msg3/MSG3_Dust</string>
 				  </entry>
 
 				  <!-- Channel_01 -->
@@ -244,11 +242,11 @@
 				  </entry>
 				  <entry>
 				    <string>Channel_01_STYLE</string>
-				    <string>msg2_channel_01</string>
+				    <string>msg3_channel_01</string>
 				  </entry>
 				  <entry>
 				    <string>Channel_01_MOSAIC_DIR</string>
-				    <string>/opt/data/msg2/MSG2_Channel_01</string>
+				    <string>/opt/data/msg3/MSG3_Channel_01</string>
 				  </entry>
                   
 				  <!-- Channel_02 -->
@@ -258,11 +256,11 @@
 				  </entry>
 				  <entry>
 				    <string>Channel_02_STYLE</string>
-				    <string>msg2_channel_02</string>
+				    <string>msg3_channel_02</string>
 				  </entry>
 				  <entry>
 				    <string>Channel_02_MOSAIC_DIR</string>
-				    <string>/opt/data/msg2/MSG2_Channel_02</string>
+				    <string>/opt/data/msg3/MSG3_Channel_02</string>
 				  </entry>         
 
 				  <!-- Channel_03 -->
@@ -272,11 +270,11 @@
 				  </entry>
 				  <entry>
 				    <string>Channel_03_STYLE</string>
-				    <string>msg2_channel_03</string>
+				    <string>msg3_channel_03</string>
 				  </entry>
 				  <entry>
 				    <string>Channel_03_MOSAIC_DIR</string>
-				    <string>/opt/data/msg2/MSG2_Channel_03</string>
+				    <string>/opt/data/msg3/MSG3_Channel_03</string>
 				  </entry>         
 
 				  <!-- Channel_04 -->
@@ -286,11 +284,11 @@
 				  </entry>
 				  <entry>
 				    <string>Channel_04_STYLE</string>
-				    <string>msg2_channel_04</string>
+				    <string>msg3_channel_04</string>
 				  </entry>
 				  <entry>
 				    <string>Channel_04_MOSAIC_DIR</string>
-				    <string>/opt/data/msg2/MSG2_Channel_04</string>
+				    <string>/opt/data/msg3/MSG3_Channel_04</string>
 				  </entry>                    
 				  
 				  <!-- Channel_05 -->
@@ -300,11 +298,11 @@
 				  </entry>
 				  <entry>
 				    <string>Channel_05_STYLE</string>
-				    <string>msg2_channel_05</string>
+				    <string>msg3_channel_05</string>
 				  </entry>
 				  <entry>
 				    <string>Channel_05_MOSAIC_DIR</string>
-				    <string>/opt/data/msg2/MSG2_Channel_05</string>
+				    <string>/opt/data/msg3/MSG3_Channel_05</string>
 				  </entry>
 				  
 				  <!-- Channel_06 -->
@@ -314,11 +312,11 @@
 				  </entry>
 				  <entry>
 				    <string>Channel_06_STYLE</string>
-				    <string>msg2_channel_06</string>
+				    <string>msg3_channel_06</string>
 				  </entry>
 				  <entry>
 				    <string>Channel_06_MOSAIC_DIR</string>
-				    <string>/opt/data/msg2/MSG2_Channel_06</string>
+				    <string>/opt/data/msg3/MSG3_Channel_06</string>
 				  </entry>
                   
 				  <!-- Channel_07 -->
@@ -328,11 +326,11 @@
 				  </entry>
 				  <entry>
 				    <string>Channel_07_STYLE</string>
-				    <string>msg2_channel_07</string>
+				    <string>msg3_channel_07</string>
 				  </entry>
 				  <entry>
 				    <string>Channel_07_MOSAIC_DIR</string>
-				    <string>/opt/data/msg2/MSG2_Channel_07</string>
+				    <string>/opt/data/msg3/MSG3_Channel_07</string>
 				  </entry>      
 
 				  <!-- Channel_08 -->
@@ -342,11 +340,11 @@
 				  </entry>
 				  <entry>
 				    <string>Channel_08_STYLE</string>
-				    <string>msg2_channel_08</string>
+				    <string>msg3_channel_08</string>
 				  </entry>
 				  <entry>
 				    <string>Channel_08_MOSAIC_DIR</string>
-				    <string>/opt/data/msg2/MSG2_Channel_08</string>
+				    <string>/opt/data/msg3/MSG3_Channel_08</string>
 				  </entry>                    
 
 				  <!-- Channel_09 -->
@@ -356,11 +354,11 @@
 				  </entry>
 				  <entry>
 				    <string>Channel_09_STYLE</string>
-				    <string>msg2_channel_09</string>
+				    <string>msg3_channel_09</string>
 				  </entry>
 				  <entry>
 				    <string>Channel_09_MOSAIC_DIR</string>
-				    <string>/opt/data/msg2/MSG2_Channel_09</string>
+				    <string>/opt/data/msg3/MSG3_Channel_09</string>
 				  </entry>       
 
 				  <!-- Channel_10 -->
@@ -370,11 +368,11 @@
 				  </entry>
 				  <entry>
 				    <string>Channel_10_STYLE</string>
-				    <string>msg2_channel_10</string>
+				    <string>msg3_channel_10</string>
 				  </entry>
 				  <entry>
 				    <string>Channel_10_MOSAIC_DIR</string>
-				    <string>/opt/data/msg2/MSG2_Channel_10</string>
+				    <string>/opt/data/msg3/MSG3_Channel_10</string>
 				  </entry>    
 
 				  <!-- Channel_11 -->
@@ -384,11 +382,11 @@
 				  </entry>
 				  <entry>
 				    <string>Channel_11_STYLE</string>
-				    <string>msg2_channel_11</string>
+				    <string>msg3_channel_11</string>
 				  </entry>
 				  <entry>
 				    <string>Channel_11_MOSAIC_DIR</string>
-				    <string>/opt/data/msg2/MSG2_Channel_11</string>
+				    <string>/opt/data/msg3/MSG3_Channel_11</string>
 				  </entry>                    
 				  
 				  <!-- Channel_12 -->
@@ -398,11 +396,11 @@
 				  </entry>
 				  <entry>
 				    <string>Channel_12_STYLE</string>
-				    <string>msg2_channel_12</string>
+				    <string>msg3_channel_12</string>
 				  </entry>
 				  <entry>
 				    <string>Channel_12_MOSAIC_DIR</string>
-				    <string>/opt/data/msg2/MSG2_Channel_12</string>
+				    <string>/opt/data/msg3/MSG3_Channel_12</string>
 				  </entry>
 				  
 				  <!--entry>

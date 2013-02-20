@@ -56,7 +56,7 @@
       <map>
         <entry>
           <string>defaultStyle</string>
-          <string>ConvectiveAvailPotEnergy</string>
+          <string>arw_3km_Convective_Avail_Pot_Energy_0.0</string>
         </entry>
       </map>
     </entry>
@@ -65,7 +65,7 @@
       <map>
         <entry>
           <string>defaultStyle</string>
-          <string>ConvectiveInhibition</string>
+          <string>arw_3km_Convective_inhibition_0.0</string>
         </entry>
       </map>
     </entry>
@@ -94,7 +94,7 @@
         </entry>
         <entry>
           <string>defaultStyle</string>
-          <string>TemperatureCelsius</string>
+          <string>arw_3km_Dew_point_temperature_2.0</string>
         </entry>
       </map>
     </entry>
@@ -103,7 +103,7 @@
       <map>
         <entry>
           <string>defaultStyle</string>
-          <string>DownwardLongWaveFlux</string>
+          <string>arw_3km_Downward_long_wave_flux_0.0</string>
         </entry>
       </map>
     </entry>
@@ -112,7 +112,7 @@
       <map>
         <entry>
           <string>defaultStyle</string>
-          <string>DownwardShortWaveFlux</string>
+          <string>arw_3km_Downward_short_wave_flux_0.0</string>
         </entry>
       </map>
     </entry>
@@ -121,7 +121,7 @@
       <map>
         <entry>
           <string>defaultStyle</string>
-          <string>gcontour_geopotential_60</string>
+          <string>arw_3km_Geopotential_height_1000.0</string>
         </entry>
       </map>
     </entry>
@@ -130,7 +130,7 @@
       <map>
         <entry>
           <string>defaultStyle</string>
-          <string>gcontour_geopotential_60</string>
+          <string>arw_3km_Geopotential_height_highest_tropospheric_freezing_0.0</string>
         </entry>
       </map>
     </entry>
@@ -139,7 +139,7 @@
       <map>
         <entry>
           <string>defaultStyle</string>
-          <string>gcontour_geopotential_60</string>
+          <string>arw_3km_Geopotential_height_surface_0.0</string>
         </entry>
       </map>
     </entry>
@@ -148,7 +148,7 @@
       <map>
         <entry>
           <string>defaultStyle</string>
-          <string>gcontour_geopotential_60</string>
+          <string>arw_3km_Geopotential_height_tropopause_0.0</string>
         </entry>
       </map>
     </entry>
@@ -173,7 +173,7 @@
         </entry>
         <entry>
           <string>defaultStyle</string>
-          <string>MeanSeaLevelPressure</string>
+          <string>arw_3km_Mean_sea_level_pressure_NAM_model_0.0</string>
         </entry>
       </map>
     </entry>
@@ -183,7 +183,7 @@
       <map>
         <entry>
           <string>defaultStyle</string>
-          <string>RelativeHumidityProfile</string>
+          <string>arw_3km_Relative_humidity_1000.0</string>
         </entry>
       </map>
     </entry>
@@ -192,7 +192,7 @@
       <map>
         <entry>
           <string>defaultStyle</string>
-          <string>RelativeHumidity2m</string>
+          <string>arw_3km_Relative_humidity_height_above_ground_0.0</string>
         </entry>
       </map>
     </entry>
@@ -221,7 +221,7 @@
         </entry>
         <entry>
           <string>defaultStyle</string>
-          <string>TemperatureCelsius</string>
+          <string>arw_3km_Soil_temperature_150.0</string>
         </entry>
       </map>
     </entry>
@@ -230,7 +230,7 @@
       <map>
         <entry>
           <string>defaultStyle</string>
-          <string>SurfaceWindGust</string>
+          <string>arw_3km_Surface_wind_gust_0.0</string>
         </entry>
       </map>
     </entry>
@@ -243,7 +243,7 @@
         </entry>
         <entry>
           <string>defaultStyle</string>
-          <string>TemperatureCelsius</string>
+          <string>arw_3km_Temperature_1000.0</string>
         </entry>
       </map>
     </entry>
@@ -272,7 +272,7 @@
         </entry>
         <entry>
           <string>defaultStyle</string>
-          <string>TemperatureCelsius</string>
+          <string>arw_3km_Temperature_height_above_ground_2.0</string>
         </entry>
       </map>
     </entry>
@@ -285,7 +285,7 @@
         </entry>
         <entry>
           <string>defaultStyle</string>
-          <string>TemperatureCelsius</string>
+          <string>arw_3km_Temperature_surface_0.0</string>
         </entry>
       </map>
     </entry>
@@ -294,7 +294,7 @@
       <map>
         <entry>
           <string>defaultStyle</string>
-          <string>TotalCloudCover</string>
+          <string>arw_3km_Total_cloud_cover_0.0</string>
         </entry>
       </map>
     </entry>
@@ -303,7 +303,7 @@
       <map>
         <entry>
           <string>defaultStyle</string>
-          <string>TotalCloudCover</string>
+          <string>arw_3km_High_cloud_cover_0.0</string>
         </entry>
       </map>
     </entry>
@@ -312,7 +312,7 @@
       <map>
         <entry>
           <string>defaultStyle</string>
-          <string>TotalCloudCover</string>
+          <string>arw_3km_Low_cloud_cover_0.0</string>
         </entry>
       </map>
     </entry>
@@ -321,7 +321,7 @@
       <map>
         <entry>
           <string>defaultStyle</string>
-          <string>TotalCloudCover</string>
+          <string>arw_3km_Medium_cloud_cover_0.0</string>
         </entry>
       </map>
     </entry>
@@ -330,7 +330,7 @@
       <map>
         <entry>
           <string>defaultStyle</string>
-          <string>TotalPrecipitation</string>
+          <string>arw_3km_Total_precipitation_0.0</string>
         </entry>
       </map>
     </entry>
@@ -382,10 +382,30 @@
       <map>
         <entry>
           <string>defaultStyle</string>
-          <string>Visibility</string>
+          <string>arw_3km_Visibility_0.0</string>
         </entry>
       </map>
     </entry>
+    
+    <entry>
+      <string>Land_cover_land1sea0</string>
+      <map>
+        <entry>
+          <string>defaultStyle</string>
+          <string>arw_3km_Land_cover_land1sea0_0.0</string>
+        </entry>
+      </map>
+    </entry>  
+
+    <entry>
+      <string>Convective_precip_rate</string>
+      <map>
+        <entry>
+          <string>defaultStyle</string>
+          <string>arw_3km_Convective_precip_rate_0.0</string>
+        </entry>
+      </map>
+    </entry>        
     
     <entry>
       <string>Volumetric_soil_moisture</string>
@@ -408,7 +428,7 @@
         </entry>
         <entry>
           <string>defaultStyle</string>
-          <string>VolumetricSoilMoisture</string>
+          <string>arw_3km_Volumetric_soil_moisture_150.0</string>
         </entry>
       </map>
     </entry>

@@ -154,7 +154,7 @@
                         <properties>
 				<entry>
 				  <string>defaultStyle</string>
-				  <string>garrows</string>
+				  <string>wind_arrow_palette</string>
 				</entry>
                                 <entry>
                                   <string>imageNameRegex</string>
@@ -256,27 +256,27 @@
 
 			<tileSizeH>256</tileSizeH>
 			<tileSizeW>256</tileSizeW>
+
 			<NativeMinBoundingBoxX>4</NativeMinBoundingBoxX>
-
 			<NativeMinBoundingBoxY>40</NativeMinBoundingBoxY>
-
 			<NativeMaxBoundingBoxX>17.98</NativeMaxBoundingBoxX>
-
 			<NativeMaxBoundingBoxY>49</NativeMaxBoundingBoxY>
 
 			<latLonMinBoundingBoxX>4</latLonMinBoundingBoxX>
-
 			<latLonMinBoundingBoxY>40</latLonMinBoundingBoxY>
-
 			<latLonMaxBoundingBoxX>17.98</latLonMaxBoundingBoxX>
-
 			<latLonMaxBoundingBoxY>49</latLonMaxBoundingBoxY>
+
 			<!--NONE, REPROJECT_TO_DECLARED, FORCE_DECLARED-->
 			<projectionPolicy>NONE</projectionPolicy>
 			<!-- METADATA -->
 			<timeDimEnabled>true</timeDimEnabled>
+            
 			<!-- LIST, CONTINUOUS_INTERVAL, DISCRETE_INTERVAL -->
-			<timePresentationMode>LIST</timePresentationMode>
+            <!-- timePresentationMode>CONTINUOUS_INTERVAL</timePresentationMode -->
+            <timePresentationMode>DISCRETE_INTERVAL</timePresentationMode>
+            <timeDiscreteInterval>3600000</timeDiscreteInterval>
+
 			<elevDimEnabled>true</elevDimEnabled>
 			<elevationPresentationMode>LIST</elevationPresentationMode>
 			<!--  <dirName>DIR</dirName>-->
@@ -312,7 +312,10 @@
 				    <string>WORKSPACE</string>
 				    <string>ARW_3KM_RUN00</string>
 				  </entry>
-				  
+				  <entry>
+				    <string>GNPRIV</string>
+				    <string>1_0156</string>
+				  </entry>
 				  <entry>
 				    <string>GNPWD</string>
 				    <!--string>admin</string-->
@@ -335,7 +338,7 @@
 				  
 				  <entry>
 				    <string>GSTPWD</string>
-				    <string>admin</string>
+				    <string>j6Knno8r</string>
 				  </entry>
 				  <entry>
 				    <string>GSTUID</string>

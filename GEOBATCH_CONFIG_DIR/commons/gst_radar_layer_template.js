@@ -111,3 +111,18 @@
         }
               </#if><#-- if ELEVATION_DOMAIN -->
             </#if><#-- if MATCHES -->
+            ,{
+    "format":"image/png",
+    "group":"Limiti mondiali",
+    "name":"lamma:confini_mondiali",
+    "selected":false,                   
+    "source":"LaMMA_confini", 
+    "styles":["confini"],
+    "style":["confini"],
+    "title":"Confini",
+    "transparent":true,
+    "visibility":true,
+    "ratio":1,
+    "getGraph": false,
+    "srs":"EPSG:900913"
+    } 

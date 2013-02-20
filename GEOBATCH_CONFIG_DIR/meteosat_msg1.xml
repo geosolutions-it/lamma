@@ -105,7 +105,7 @@
 				  
 				  <entry>
 				    <string>GSTPWD</string>
-				    <string>admin</string>
+				    <string>j6Knno8r</string>
 				  </entry>
 				  <entry>
 				    <string>GSTUID</string>
@@ -128,60 +128,171 @@
 				  
 				  <entry>
 				    <string>PREFIX_LIST</string>
-				    <string>Channel_05,Channel_06,Channel_09,Channel_12</string>
+				    <string>Channel_01,Channel_02,Channel_03,Channel_04,Channel_05,Channel_06,Channel_07,Channel_08,Channel_09,Channel_10,Channel_11,Channel_12</string>
 				  </entry>
+
+				  <!-- Channel_01 -->
+				  <entry>
+				    <string>Channel_01_FILTER</string>
+				    <string>*_VIS006_01*</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_01_STYLE</string>
+				    <string>msg1_channel_01</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_01_MOSAIC_DIR</string>
+				    <string>/opt/data/msg1/MSG1_Channel_01</string>
+				  </entry>
+                  
+				  <!-- Channel_02 -->
+				  <entry>
+				    <string>Channel_02_FILTER</string>
+				    <string>*_VIS008_02*</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_02_STYLE</string>
+				    <string>msg1_channel_02</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_02_MOSAIC_DIR</string>
+				    <string>/opt/data/msg1/MSG1_Channel_02</string>
+				  </entry>         
+
+				  <!-- Channel_03 -->
+				  <entry>
+				    <string>Channel_03_FILTER</string>
+				    <string>*_IR_016_03*</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_03_STYLE</string>
+				    <string>msg1_channel_03</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_03_MOSAIC_DIR</string>
+				    <string>/opt/data/msg1/MSG1_Channel_03</string>
+				  </entry>         
+
+				  <!-- Channel_04 -->
+				  <entry>
+				    <string>Channel_04_FILTER</string>
+				    <string>*_IR_039_04*</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_04_STYLE</string>
+				    <string>msg1_channel_04</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_04_MOSAIC_DIR</string>
+				    <string>/opt/data/msg1/MSG1_Channel_04</string>
+				  </entry>                    
 				  
-				  
-				  <!-- Channel_5 -->
+				  <!-- Channel_05 -->
 				  <entry>
 				    <string>Channel_05_FILTER</string>
 				    <string>*_WV_062_05*</string>
 				  </entry>
 				  <entry>
 				    <string>Channel_05_STYLE</string>
-				    <string>raster</string>
+				    <string>msg1_channel_05</string>
 				  </entry>
 				  <entry>
 				    <string>Channel_05_MOSAIC_DIR</string>
 				    <string>/opt/data/msg1/MSG1_Channel_05</string>
 				  </entry>
 				  
-				  <!-- Channel_6 -->
+				  <!-- Channel_06 -->
 				  <entry>
 				    <string>Channel_06_FILTER</string>
 				    <string>*_WV_073_06*</string>
 				  </entry>
 				  <entry>
 				    <string>Channel_06_STYLE</string>
-				    <string>raster</string>
+				    <string>msg1_channel_06</string>
 				  </entry>
 				  <entry>
 				    <string>Channel_06_MOSAIC_DIR</string>
 				    <string>/opt/data/msg1/MSG1_Channel_06</string>
 				  </entry>
-				  
-				  <!-- Channel_10 -->
+                  
+				  <!-- Channel_07 -->
+				  <entry>
+				    <string>Channel_07_FILTER</string>
+				    <string>*_IR_087_07*</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_07_STYLE</string>
+				    <string>msg1_channel_07</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_07_MOSAIC_DIR</string>
+				    <string>/opt/data/msg1/MSG1_Channel_07</string>
+				  </entry>      
+
+				  <!-- Channel_08 -->
+				  <entry>
+				    <string>Channel_08_FILTER</string>
+				    <string>*_IR_097_08*</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_08_STYLE</string>
+				    <string>msg1_channel_08</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_08_MOSAIC_DIR</string>
+				    <string>/opt/data/msg1/MSG1_Channel_08</string>
+				  </entry>                    
+
+				  <!-- Channel_09 -->
 				  <entry>
 				    <string>Channel_09_FILTER</string>
 				    <string>*_IR_108_09*</string>
 				  </entry>
 				  <entry>
 				    <string>Channel_09_STYLE</string>
-				    <string>raster</string>
+				    <string>msg1_channel9</string>
 				  </entry>
 				  <entry>
 				    <string>Channel_09_MOSAIC_DIR</string>
 				    <string>/opt/data/msg1/MSG1_Channel_09</string>
-				  </entry>
-				  
+				  </entry>       
+
 				  <!-- Channel_10 -->
+				  <entry>
+				    <string>Channel_10_FILTER</string>
+				    <string>*_IR_120_10*</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_10_STYLE</string>
+				    <string>msg1_channel_10</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_10_MOSAIC_DIR</string>
+				    <string>/opt/data/msg1/MSG1_Channel_10</string>
+				  </entry>    
+
+				  <!-- Channel_11 -->
+				  <entry>
+				    <string>Channel_11_FILTER</string>
+				    <string>*_IR_134_11*</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_11_STYLE</string>
+				    <string>msg1_channel_11</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_11_MOSAIC_DIR</string>
+				    <string>/opt/data/msg1/MSG1_Channel_11</string>
+				  </entry>                    
+				  
+				  <!-- Channel_12 -->
 				  <entry>
 				    <string>Channel_12_FILTER</string>
 				    <string>*_HRV_12*</string>
 				  </entry>
 				  <entry>
 				    <string>Channel_12_STYLE</string>
-				    <string>raster</string>
+				    <string>msg1_channel_12</string>
 				  </entry>
 				  <entry>
 				    <string>Channel_12_MOSAIC_DIR</string>
@@ -208,6 +319,21 @@
 				    <string>_MOSAIC_DIR</string>
 				    <string></string>
 				  </entry-->
+
+                                  <entry>
+                                    <string>DELETE_GRANULES_DELTA_DAYS</string>
+                                    <string>3</string>
+                                  </entry>
+
+                                  <entry>
+                                    <string>DELETE_GRANULES_FROM_DISK</string>
+                                    <string>true</string>
+                                  </entry>
+
+                                  <entry>
+                                    <string>PERFORM_GEOSERVER_RESET</string>
+                                    <string>false</string>
+                                  </entry>
 				  
 			</properties>
 		</ScriptingConfiguration>

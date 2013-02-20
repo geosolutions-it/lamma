@@ -35,9 +35,9 @@
 		
 		
 		<ScriptingConfiguration>
-			<id>MeteosatScript</id>
-			<description>Groovy Script</description>
-			<name>meteosat_script</name>
+			<id>RadarScript</id>
+			<description>Radar groovy script</description>
+			<name>radar_script</name>
 <failIgnored>true</failIgnored>
 			<listenerId>Logger</listenerId>
 			<listenerId>StatusAction</listenerId>
@@ -101,7 +101,7 @@
 				  
 				  <entry>
 				    <string>GSTPWD</string>
-				    <string>admin</string>
+				    <string>j6Knno8r</string>
 				  </entry>
 				  <entry>
 				    <string>GSTUID</string>
@@ -151,6 +151,20 @@
 				    <string>/opt/data/VMI</string>
 				  </entry>
 				  
+                                  <entry>
+                                    <string>DELETE_GRANULES_DELTA_DAYS</string>
+                                    <string>3</string>
+                                  </entry>
+
+                                  <entry>
+                                    <string>DELETE_GRANULES_FROM_DISK</string>
+                                    <string>true</string>
+                                  </entry>                  
+
+                                  <entry>
+                                    <string>PERFORM_GEOSERVER_RESET</string>
+                                    <string>false</string>
+                                  </entry>
 				  
 			</properties>
 		</ScriptingConfiguration>

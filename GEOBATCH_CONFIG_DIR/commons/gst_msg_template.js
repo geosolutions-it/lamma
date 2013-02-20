@@ -65,26 +65,35 @@
         {
            "fixed":true,
            "group":"background",
-           "name":"HYBRID",
-           "selected":false,
-           "source":"google",
-           "title":"Google Hybrid",
-           "visibility":false
-        },
-        {
-           "fixed":true,
-           "group":"background",
            "name":"TERRAIN",
            "opacity":1,
            "selected":false,
            "source":"google",
            "title":"Google Terrain",
            "visibility":true
+        },
+        {
+           "fixed":true,
+           "group":"background",
+           "name":"HYBRID",
+           "selected":false,
+           "source":"google",
+           "title":"Google Hybrid",
+           "visibility":false
+        },{
+            "source": "ol",
+            "group": "background",
+            "fixed": true,
+            "type": "OpenLayers.Layer",
+            "visibility": false,
+            "args": [
+                "None", {"visibility": false}
+            ]
         }<#list event as root>,{
-                    "format":"image/png",
+                    "format":"image/gif",
                     "group":"${root.WORKSPACE}",<#-- FIXED -->
                     "name":"${root.WORKSPACE}:${root.LAYERNAME}",<#-- FIXED -->
-                    "opacity":0.7,
+                    "opacity":1.0,
                     "selected":false,
                     "source":"${root.WORKSPACE}", <#-- FIXED -->
                     "styles":["${root.DEFAULT_STYLE}"],
@@ -97,6 +106,21 @@
                     "transitionEffect":"resize"
                     <#if root.ELEVATION_DOMAIN??>,"elevation":"${root.ELEVATION_DOMAIN[0]}"</#if><#-- FIXED -->
                 }</#list>
+                ,{
+                       "format":"image/png",
+                       "group":"Limiti mondiali",
+                       "name":"lamma:confini_mondiali",
+                       "selected":false,                   
+                       "source":"LaMMA_confini", 
+                       "styles":["confini"],
+                       "style":["confini"],
+                       "title":"Confini",
+                       "transparent":true,
+                       "visibility":true,
+                       "ratio":1,
+                       "getGraph": false,
+                       "srs":"EPSG:900913"
+                    }                
             ],
             "maxExtent":["-20037508.34","-20037508.34","20037508.34","20037508.34"],
             "maxResolution": 156543.0339,
@@ -128,6 +152,15 @@
                 },
                 "url":"http://159.213.57.108/geoserver/ows?namespace=lamma_stazioni"
              },
+             "LaMMA_confini":{
+                "ptype": "gxp_wmssource",
+                "title":"LaMMA Confini",
+                "layerBaseParams":{
+                   "TILED":false,
+                   "TILESORIGIN":"-20037508.34,-20037508.34"
+                },
+                "url":"http://159.213.57.108/geoserver/gwc/service/wms"
+             },     
             "bing":{
                 "projection":"EPSG:900913",
                 "ptype":"gxp_bingsource"
