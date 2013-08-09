@@ -466,7 +466,20 @@ public class MergeImageUtils {
 	 */
 	public double getDirection(double valueU, double valueV) {
 		final double direction=(180 / Math.PI) * Math.atan2(-valueU,-valueV);
-		return (direction<0)?(360+direction):direction;
+		final double newDirection;
+		
+		if(direction>0 && direction<=90){
+			newDirection=direction;
+		}else if(direction>90 && direction<=180){
+			newDirection=direction+180;
+		}else if(direction<0 && direction>=-90){
+			newDirection=direction+180;
+		}else{
+			newDirection=direction+360;
+		}
+		
+		//return (direction<0)?(360+direction):direction;
+		return newDirection;
 	}
 
 	public static void main(String[] args) throws IllegalArgumentException, Throwable {
