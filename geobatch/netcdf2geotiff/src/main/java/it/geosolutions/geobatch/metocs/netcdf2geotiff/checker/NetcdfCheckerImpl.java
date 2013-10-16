@@ -286,7 +286,7 @@ public class NetcdfCheckerImpl<TYPE> extends NetcdfChecker<TYPE> {
             try {
                 time = timeVar.read();
                 timeSize = (int)time.getSize();
-                timeConversion = super.getTimeConversion(timeVar.getName());
+                timeConversion = super.getTimeConversion(timeVar.getShortName());
             } catch (IOException e) {
                 timeDimExists = false;// TODO LOG
                 timeSize = 1;
@@ -304,24 +304,27 @@ public class NetcdfCheckerImpl<TYPE> extends NetcdfChecker<TYPE> {
                 LOGGER.warn("Unable to get the BaseTime for the variable \'" + var.getFullName()
                             + "\', local base time is set to global one...");
         } else {
-            final Date date = super.getRunTimeDate();
+            Date date = super.getRunTimeDate();
+//            if (date == null) {
+//                date = super.getTimeUnit(timeVar);
+//            }
             if (date != null) {
                 localBaseTime = date.getTime();
                 if (localBaseTime < 0) {
                     if (LOGGER.isErrorEnabled())
-                        LOGGER.error("Unable to get the BaseTime for the varibale \'" + var.getName()
+                        LOGGER.error("Unable to get the BaseTime for the varibale \'" + var.getFullName()
                                      + "\' setting !timeDimExists");
                     timeDimExists = false;
                     timeSize = 1;
                 } else {
                     if (LOGGER.isWarnEnabled()) {
-                        LOGGER.warn("Unable to get the BaseTime for the varibale \'" + var.getName()
+                        LOGGER.warn("Unable to get the BaseTime for the varibale \'" + var.getFullName()
                                     + "\' setting to RunTime");
                     }
                 }
             } else {
                 if (LOGGER.isErrorEnabled())
-                    LOGGER.error("Unable to get the BaseTime for the varibale \'" + var.getName()
+                    LOGGER.error("Unable to get the BaseTime for the variable \'" + var.getFullName()
                                  + "\' setting !timeDimExists");
                 timeDimExists = false;
                 timeSize = 1;

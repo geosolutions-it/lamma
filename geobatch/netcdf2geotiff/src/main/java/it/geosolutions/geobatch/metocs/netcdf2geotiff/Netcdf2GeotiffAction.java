@@ -330,9 +330,9 @@ public class Netcdf2GeotiffAction extends BaseAction<EventObject> implements
                     }
                     
                         if (readVariables.size()>0){
-                            if (!readVariables.contains(var.getName())){
+                            if (!readVariables.contains(var.getShortName())){
                                 if (LOGGER.isTraceEnabled())
-                                    LOGGER.trace("Skipping variable named: \'"+var.getName()+"\'");
+                                    LOGGER.trace("Skipping variable named: \'"+var.getShortName()+"\'");
                                 continue;
                             }
                         }

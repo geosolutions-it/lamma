@@ -207,8 +207,8 @@ public abstract class NetcdfChecker<OutputType> extends Netcdf2GeotiffOutput<Out
 	 * @return a string representing the name in the form described above
 	 */
 	public String getVarName(final Variable var) {
-		return getPrefix(var.getName()) + var.getName()
-				+ getSuffix(var.getName());
+		return getPrefix(var.getShortName()) + var.getShortName()
+				+ getSuffix(var.getShortName());
 	}
 
 	/**
@@ -323,7 +323,7 @@ public abstract class NetcdfChecker<OutputType> extends Netcdf2GeotiffOutput<Out
 	 */
 	public Converter getVarConversion(final Variable var) {
 		// try to parse conversion value from the dictionary
-		final String conversionVal = getDictionary().getValueFromDictionary(var.getName()
+		final String conversionVal = getDictionary().getValueFromDictionary(var.getShortName()
 				, MetocsBaseDictionary.CONVERSION_KEY);
 		if (conversionVal!=null)
 			return converterManager.getConverter(var.getUnitsString(), conversionVal);
@@ -533,7 +533,7 @@ public abstract class NetcdfChecker<OutputType> extends Netcdf2GeotiffOutput<Out
 	protected Attribute getVarAttrByKey(final Variable var, final String attrKey) {
 
 		final String name = getDictionary().getValueFromDictionary(
-				var.getName(), attrKey);
+				var.getShortName(), attrKey);
 		if (name == null) {
 			return null;
 		}
@@ -554,7 +554,7 @@ public abstract class NetcdfChecker<OutputType> extends Netcdf2GeotiffOutput<Out
 	 */
 	protected Variable getDimVar(final Variable var, final String varName) {
 		final String name = getDictionary().getValueFromDictionary(
-				var.getName(), varName);
+				var.getShortName(), varName);
 		if (name == null) {
 			return null;
 		}
@@ -565,10 +565,10 @@ public abstract class NetcdfChecker<OutputType> extends Netcdf2GeotiffOutput<Out
 			if (LOGGER.isErrorEnabled())
 				LOGGER.error("Unable to find " + name
 						+ " dimension into the variable named: "
-						+ var.getName());
+						+ var.getShortName());
 			return null;
 		} else {
-			return ncFileIn.findVariable(name);
+			return ncFileIn.findVariable(var.getParentGroup().getName() + "/" + name);
 		}
 	}
 
