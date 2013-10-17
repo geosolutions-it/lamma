@@ -321,7 +321,9 @@ public class Netcdf2GeotiffAction extends BaseAction<EventObject> implements
                 
 //                final String runTime = checker.getRunTime();
 //                final String tau = checker.getTAU();
-                
+                if (checker != null) {
+                    checker.setHalfPixelExtend(configuration.isHalfPixelExtend());
+                }
                 for (Variable var : foundVariables) {
                     if (var == null) {
                     	if (LOGGER.isWarnEnabled())

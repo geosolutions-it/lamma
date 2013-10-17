@@ -270,6 +270,7 @@ public class METOCSActionsIOUtils {
 		} else
 			return false; // TODO log!!!
 
+		int element = varIndex.currentElement();
 		for (int yPos = 0; yPos < latPositions; yPos++) {
 			for (int xPos = 0; xPos < lonPositions; xPos++) {
 				// get next value
@@ -277,8 +278,9 @@ public class METOCSActionsIOUtils {
 						.getClass()
 						.getMethod("get" + clazz.getSimpleName(),
 								new Class[] { int.class })
-						.invoke(originalVarData, varIndex.incr()));
+						.invoke(originalVarData, element));
 
+				element = varIndex.incr();
 				// Flipping y
 				final int newYpos;
 				if (flipY) {

@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import ucar.ma2.Array;
 import ucar.ma2.Section;
+import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 import ucar.units.Converter;
@@ -305,9 +306,9 @@ public class NetcdfCheckerImpl<TYPE> extends NetcdfChecker<TYPE> {
                             + "\', local base time is set to global one...");
         } else {
             Date date = super.getRunTimeDate();
-//            if (date == null) {
-//                date = super.getTimeUnit(timeVar);
-//            }
+            if (date == null) {
+                date = super.getTimeUnit(timeVar);
+            }
             if (date != null) {
                 localBaseTime = date.getTime();
                 if (localBaseTime < 0) {

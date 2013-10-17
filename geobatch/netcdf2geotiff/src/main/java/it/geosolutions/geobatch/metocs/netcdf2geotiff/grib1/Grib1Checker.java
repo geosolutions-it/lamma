@@ -31,6 +31,7 @@ import it.geosolutions.geobatch.metocs.utils.converter.ConverterManager;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.EventObject;
 import java.util.List;
 
@@ -115,7 +116,13 @@ public class Grib1Checker extends NetcdfCheckerImpl<EventObject> {
      */
     @Override
     public String getVarName(final Variable var) {
-        return super.getVarName(var) + "_" + super.getRunTime();
+        String runtime = super.getRunTime();
+        if (runtime == null) {
+            Date date = super.getTimeUnit(super.getTime(var));
+            runtime =  date != null ? super.formatDate(date) : null;
+            
+        }
+        return super.getVarName(var) + "_" + runtime;
     }
 
 }

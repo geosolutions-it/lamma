@@ -73,21 +73,39 @@ public abstract class NetcdfChecker<OutputType> extends Netcdf2GeotiffOutput<Out
     public abstract int getTimeSize();
 	public abstract int getZetaSize();
 	public abstract GeneralEnvelope getEnvelope();
-	
-	
-	/**
-	 * calculate general envelop
-	 * @param lat
-	 * @param lon
-	 * @return
-	 */
-    public GeneralEnvelope getVarEnvelope(final Array lat, final Array lon){
-        final double[] bbox = METOCSActionsIOUtils.computeExtrema(lat,lon);
+
+    /**
+     * calculate general envelop
+     * 
+     * @param lat
+     * @param lon
+     * 
+     * @return
+     */
+    public GeneralEnvelope getVarEnvelope(final Array lat, final Array lon) {
+        final double[] bbox = METOCSActionsIOUtils.computeExtrema(lat, lon);
         // building Envelope
         final GeneralEnvelope envelope = new GeneralEnvelope(METOCSActionsIOUtils.WGS_84);
-        
-        envelope.setRange(0, bbox[0], bbox[2]);
-        envelope.setRange(1, bbox[1], bbox[3]);
+        if (!halfPixelExtend) {
+            envelope.setRange(0, bbox[0], bbox[2]);
+            envelope.setRange(1, bbox[1], bbox[3]);
+        } else {
+            // Getting coordinates Span
+            final double diffX = bbox[2] - bbox[0];
+            final double diffY = Math.abs(bbox[1] - bbox[3]);
+
+            // Getting number of grid points
+            final double nX = lon.getSize();
+            final double nY = lat.getSize();
+
+            // Getting half pixel size
+            final double halfX = (diffX / ((nX - 1) * 2));
+            final double halfY = (diffY / ((nY - 1) * 2));
+
+            //Updating the envelope
+            envelope.setRange(0, bbox[0] - halfX, bbox[2] + halfX);
+            envelope.setRange(1, bbox[1] - halfY, bbox[3] + halfY);
+        }
         return envelope;
     }
 
@@ -113,21 +131,24 @@ public abstract class NetcdfChecker<OutputType> extends Netcdf2GeotiffOutput<Out
 	public String getRunTime() {
 		final Date date = getRunTimeDate();
 		if (date != null) {
-			try {
-				synchronized (sdf) {
-					return sdf.format(date);
-				}
-			} catch (Exception e) {
-				if (LOGGER.isWarnEnabled())
-					LOGGER.warn(
-							"Unable to format the RunTime date attribute string: "
-									+ e.getMessage(), e);
-			}
+			return formatDate(date);
 		}
 		return null;
 	}
 
-	/**
+    protected String formatDate(Date date) {
+        try {
+            synchronized (sdf) {
+                return sdf.format(date);
+            }
+        } catch (Exception e) {
+            if (LOGGER.isWarnEnabled())
+                LOGGER.warn(
+                        "Unable to format the RunTime date attribute string: " + e.getMessage(), e);
+        }
+        return null;
+    }
+    /**
 	 * Return the runtime date as Date object.<br>
 	 * - First the dictionary is scanned searching at root level for the
 	 * attribute matching the RUNTIME_KEY<br>
@@ -453,7 +474,21 @@ public abstract class NetcdfChecker<OutputType> extends Netcdf2GeotiffOutput<Out
 	
 	private final SimpleDateFormat sdf;
 
-	private static final TimeZone UTC_TZ = TimeZone.getTimeZone("UTC");
+    /**
+     * halfPixelExtend specify whether we need to apply an half pixel extension. As an instance, for underlying GRIB files, NetCDF lon/lat coordinates
+     * are the coordinates of the grid points Therefore we need to add an half pixel to both side of both axes to get the full extent.
+     */
+    private boolean halfPixelExtend;
+
+    public boolean isHalfPixelExtend() {
+        return halfPixelExtend;
+    }
+
+    public void setHalfPixelExtend(boolean halfPixelExtend) {
+        this.halfPixelExtend = halfPixelExtend;
+    }
+
+    private static final TimeZone UTC_TZ = TimeZone.getTimeZone("UTC");
 
 	private static final String TIME_FORMAT = "yyyyMMdd'T'HHmmssSSS'Z'"; // TODO
 																			// move
@@ -705,4 +740,28 @@ public abstract class NetcdfChecker<OutputType> extends Netcdf2GeotiffOutput<Out
 			return null;
 		}
 	}
+    public Date getTimeUnit(Variable timeVar) {
+        Attribute att = timeVar.findAttribute("units");
+        if (att != null) {
+            String units = att.getStringValue();
+            if (units != null && units.contains("since ")) {
+                String timeUnits = units.substring(units.indexOf("since ") + "since ".length());
+                final TimeParser parser = new TimeParser();
+                final List<Date> dates;
+                try {
+                dates = parser.parse(timeUnits);
+                if (dates.size() > 0) {
+                    return dates.get(0);
+            }
+            } catch (ParseException e) {
+                if (LOGGER.isWarnEnabled())
+                        LOGGER.warn("Unable to parse the " + att.getName()
+                                        + " attribute string: " + e.getMessage(), e);
+        }
+               
+            }
+        }
+        return null;
+        
+    }
 }

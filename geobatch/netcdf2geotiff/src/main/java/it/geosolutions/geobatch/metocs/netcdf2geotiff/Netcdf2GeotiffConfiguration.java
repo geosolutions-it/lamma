@@ -17,6 +17,8 @@ public class Netcdf2GeotiffConfiguration extends ActionConfiguration {
 
     private boolean flipY;
 
+    private boolean halfPixelExtend = false;
+
     private String crs;
 
     private String envelope;
@@ -24,11 +26,11 @@ public class Netcdf2GeotiffConfiguration extends ActionConfiguration {
     private String storeFilePrefix;
 
     private String metocDictionaryPath;
-    
+
     private List<String> variables;
 
     private String metocHarvesterXMLTemplatePath;
-    
+
     /**
      * This represents the base directory where to public layers
      */
@@ -128,6 +130,14 @@ public class Netcdf2GeotiffConfiguration extends ActionConfiguration {
 
     public void setFlipY(boolean f) {
         this.flipY = f;
+    }
+
+    public boolean isHalfPixelExtend() {
+        return halfPixelExtend;
+    }
+
+    public void setHalfPixelExtend(boolean halfPixelExtend) {
+        this.halfPixelExtend = halfPixelExtend;
     }
 
     public String getCrs() {
