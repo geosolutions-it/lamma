@@ -118,11 +118,8 @@ public class Grib1Checker extends NetcdfCheckerImpl<EventObject> {
     public String getVarName(final Variable var) {
         String runtime = super.getRunTime();
         if (runtime == null) {
-            Date date = super.getTimeUnit(super.getTime(var));
-            runtime =  date != null ? super.formatDate(date) : null;
-            
+           runtime = getTimeFromVariable(var);
         }
         return super.getVarName(var) + "_" + runtime;
     }
-
 }

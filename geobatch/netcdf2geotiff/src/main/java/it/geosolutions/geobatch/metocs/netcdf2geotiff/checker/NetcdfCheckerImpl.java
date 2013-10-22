@@ -425,6 +425,7 @@ public class NetcdfCheckerImpl<TYPE> extends NetcdfChecker<TYPE> {
     public String buildName(final Variable var, final int... coords) {
 
         int size = coords.length; // TODO checks
+        String runTime = this.runTime == null ? getTimeFromVariable(var): this.runTime;
         final StringBuilder coverageName = new StringBuilder(getVarName(var).replaceAll("_", "")).append("_")
             // same Z since the raster is 2D
             .append(zDimExists ? elevLevelFormat(zeta.getDouble(coords[size - 1])) : "0000.000").append("_")
@@ -453,6 +454,12 @@ public class NetcdfCheckerImpl<TYPE> extends NetcdfChecker<TYPE> {
 
         return coverageName.toString();
     }
+
+    protected String getTimeFromVariable(Variable var) {
+        Date date = getTimeUnit(getTime(var));
+        return date != null ? formatDate(date) : null;
+    }
+
 
     /**
      * 
