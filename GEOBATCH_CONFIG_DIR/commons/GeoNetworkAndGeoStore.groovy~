@@ -1,0 +1,281 @@
+/*
+ *  GeoBatch - Open Source geospatial batch processing system
+ *  http://code.google.com/p/geobatch/
+ *  Copyright (C) 2007-2012 GeoSolutions S.A.S.
+ *  http://www.geo-solutions.it
+ *
+ *  GPLv3 + Classpath exception
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package it.geosolutions.geobatch.lamma.meteosat.test;
+
+import it.geosolutions.filesystemmonitor.monitor.FileSystemEvent;
+import it.geosolutions.filesystemmonitor.monitor.FileSystemEventType;
+import it.geosolutions.geobatch.action.scripting.ScriptingAction;
+import it.geosolutions.geobatch.action.scripting.ScriptingConfiguration;
+import it.geosolutions.geobatch.flow.event.ProgressListenerForwarder;
+import it.geosolutions.geobatch.flow.event.action.Action;
+import it.geosolutions.geobatch.flow.event.action.ActionException;
+import it.geosolutions.geobatch.geotiff.retile.GeotiffRetiler;
+import it.geosolutions.geobatch.imagemosaic.ImageMosaicCommand;
+import it.geosolutions.geobatch.lamma.meteosat.GeoNetworkUtils;
+import it.geosolutions.geobatch.lamma.meteosat.GeoStoreUtils;
+import it.geosolutions.geobatch.lamma.meteosat.MeteosatUtils;
+import it.geosolutions.geobatch.lamma.meteosat.RGBPythonUtils;
+import it.geosolutions.geonetwork.GNClient;
+import it.geosolutions.geostore.services.rest.GeoStoreClient;
+import it.geosolutions.tools.compress.file.Extract;
+import it.geosolutions.tools.freemarker.filter.FreeMarkerFilter;
+import it.geosolutions.tools.io.file.Collector;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.EventObject;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.WildcardFileFilter;
+
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
+
+    
+
+    /**
+     * Script Main "execute" function
+     **/
+public Map execute(Map argsMap) throws Exception {
+  
+    /**
+     * the default workspace
+     */
+    String DEF_WORKSPACE = "WORKSPACE";
+    /**
+     * the key to get the relative path (to the configDir) to load environment
+     * to call python
+     */
+    String ENVIRONMENT_FILE = "ENV_FILE";
+    /**
+     * the key to get the GeoServer Url
+     */
+    String GSURL = "GSURL";
+    /**
+     * the key to get the GeoServer user id
+     */
+    String GSUID = "GSUID";
+    /**
+     * the key to get the GeoServer pass
+     */
+    String GSPWD = "GSPWD";
+
+    /**
+     * the key to get the GeoStore Url
+     */
+    String GSTURL = "GSTURL";
+    /**
+     * the key to get the GeoStore user id
+     */
+    String GSTUID = "GSTUID";
+    /**
+     * the key to get the GeoStore pass
+     */
+    String GSTPWD = "GSTPWD";
+    /**
+     * GeoStore the key matching the path (relative to the configDir where the
+     * GST metadata template is located
+     */
+    String GST_METADATA_TEMPLATE = "GST_METADATA_TEMPLATE";
+    /**
+      * GeoStore the key matching the path (relative to the configDir where
+      * the GST metadata layer template is located this template must define only a layer
+      */
+    final String GST_LAYER_TEMPLATE = "GST_LAYER_TEMPLATE";
+
+    /**
+     * the key to get the GeoServer Url
+     */
+    String GNURL = "GNURL";
+    /**
+     * the key to get the GeoServer user id
+     */
+    String GNUID = "GNUID";
+    /**
+     * the key to get the GeoServer pass
+     */
+    String GNPWD = "GNPWD";
+    /**
+     * GeoNetwork category (dataset)
+     */
+    String GNCAT = "GNCAT";
+    /**
+     * GeoNetwork group (1)
+     */
+    String GNGRP = "GNGRP";
+    /**
+     * GeoNetwork styleSheet (_none_)
+     */
+    String GNSTYLE = "GNSTYLE";
+    /**
+     * GeoNetwork the key matching the path (relative to the configDir where the
+     * GN metadata template is located
+     */
+    String GN_METADATA_TEMPLATE = "GN_METADATA_TEMPLATE";
+
+        final ScriptingConfiguration configuration = (ScriptingConfiguration)argsMap
+            .get(ScriptingAction.CONFIG_KEY);
+
+        boolean failIgnore = true;
+        // TODO
+        if (!configuration.isFailIgnored()){
+	    failIgnore=false;
+        }
+	
+	final Map map=configuration.getProperties();
+	
+        final File tempDir = (File)argsMap.get(ScriptingAction.TEMPDIR_KEY);
+        final File configDir = (File)argsMap.get(ScriptingAction.CONFIGDIR_KEY);
+        final ProgressListenerForwarder listenerForwarder = (ProgressListenerForwarder)argsMap
+            .get(ScriptingAction.LISTENER_KEY);
+        final List events = (List)argsMap.get(ScriptingAction.EVENTS_KEY);
+        if (events.size() != 1) {
+            ActionException ae = new ActionException(Action.class,
+                                                     "More than 1 argument encountered. We only need a zip file");
+            listenerForwarder.failed(ae);
+        }
+
+        // set workspace
+        String workspace = (String)map.get(DEF_WORKSPACE);
+        if (workspace == null) {
+            throw new ActionException(Action.class, "Unable to continue without a " + DEF_WORKSPACE+ " defined, please check your configuration");
+        }
+
+        final Logger logger = LoggerFactory
+            .getLogger("it.geosolutions.geobatch.action.scripting.ScriptingAction.class");
+
+
+        // used for geostore
+        final List<Map> rootList = new ArrayList<Map>();
+        
+        for (FileSystemEvent event : events) {
+
+	  
+            File imageMosaicOutput = event.getSource();
+	  
+            if (logger.isDebugEnabled()) {
+                logger.debug("Doing stuff for: " + imageMosaicOutput);
+            }
+
+
+            // GEONETWORK
+            // ////////////////////////////////////////////////////////////////
+
+            final String gnTemplateName = (String)map.get(GN_METADATA_TEMPLATE);
+            if (gnTemplateName == null)
+                throw new IllegalArgumentException("The key " + GN_METADATA_TEMPLATE+ " property is not set, please fix the configuration.");
+	    
+            final FreeMarkerFilter gnFilter = new FreeMarkerFilter(new File(configDir, gnTemplateName));
+
+            String gnUrl = (String)map.get(GNURL);
+            if (gnUrl == null) {
+                gnUrl = "http://localhost:8282/geonetwork";
+            }
+            String gnUsr = (String)map.get(GNUID);
+            if (gnUsr == null) {
+                gnUsr = "admin";
+            }
+            String gnPwd = (String)map.get(GNPWD);
+            if (gnPwd == null) {
+                gnPwd = "admin";
+            }
+            final GNClient geonetwork = GeoNetworkUtils.createClientAndLogin(gnUrl, gnUsr, gnPwd);
+
+            String gnCat = (String)map.get(GNCAT);
+            String gnGroup = (String)map.get(GNGRP);
+            String gnStyleSheet = (String)map.get(GNSTYLE);
+
+            try {
+                Map root = GeoNetworkUtils.publishOnGeoNetwork(tempDir, imageMosaicOutput, gnFilter, geonetwork, gnCat,
+                                               gnGroup, gnStyleSheet, failIgnore, logger);
+                rootList.add(root);
+            } catch (ActionException e) {
+                if (failIgnore) {
+                    logger.error(e.getLocalizedMessage(), e);
+                    continue;
+                } else {
+                    listenerForwarder.failed(e);
+                    throw e;
+                }
+            }
+
+        } // for each file into the queue
+
+        // GEOSTORE
+        // ////////////////////////////////////////////////////////////////
+
+        final String gstTemplateName = (String)map.get(GST_METADATA_TEMPLATE);
+        if (gstTemplateName == null)
+            throw new IllegalArgumentException("The key " + GST_METADATA_TEMPLATE+ " property is not set, please fix the configuration.");
+        final FreeMarkerFilter gstFilter = new FreeMarkerFilter(new File(configDir, gstTemplateName));
+	
+	final String gstLayerTemplateName = (String)map.get(GST_LAYER_TEMPLATE);
+        if (gstLayerTemplateName == null)
+            throw new IllegalArgumentException("The key " + GST_LAYER_TEMPLATE + " property is not set, please fix the configuration.");
+        final FreeMarkerFilter gstLayerFilter = new FreeMarkerFilter(new File(configDir, gstLayerTemplateName));
+
+        String gstUrl = (String)map.get(GSTURL);
+        if (gstUrl == null) {
+            gstUrl = "http://localhost:8383/geostore/rest/";
+        }
+        String gstUsr = (String)map.get(GSTUID);
+        if (gstUsr == null) {
+            gstUsr = "admin";
+        }
+        String gstPwd = (String)map.get(GSTPWD);
+        if (gstPwd == null) {
+            gstPwd = "admin";
+        }
+        // init geostore parameter connection
+        final GeoStoreClient geostore = new GeoStoreClient();
+        geostore.setGeostoreRestUrl(gstUrl);
+        geostore.setUsername(gstUsr);
+        geostore.setPassword(gstPwd);
+
+        // GeoStore
+        try {
+            // use workspace as GeoStore Category and resource
+            GeoStoreUtils.publishOnGeoStore(logger, gstFilter, geostore, rootList, workspace);
+        } catch (Exception e) {
+            if (failIgnore) {
+                if (logger != null && logger.isErrorEnabled()) {
+                    logger.error(e.getLocalizedMessage(), e);
+                }
+            } else {
+		ActionException ae=new ActionException(Action.class, e.getLocalizedMessage(), e.getCause());
+		listenerForwarder.failed(ae);
+                throw ae;
+            }
+        }
+
+        listenerForwarder.completed();
+        return argsMap;
+    }

@@ -1,0 +1,260 @@
+/*
+ *  GeoBatch - Open Source geospatial batch processing system
+ *  http://code.google.com/p/geobatch/
+ *  Copyright (C) 2007-2012 GeoSolutions S.A.S.
+ *  http://www.geo-solutions.it
+ *
+ *  GPLv3 + Classpath exception
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package it.geosolutions.geobatch.lamma.meteosat.test;
+
+import it.geosolutions.filesystemmonitor.monitor.FileSystemEvent;
+import it.geosolutions.filesystemmonitor.monitor.FileSystemEventType;
+import it.geosolutions.geobatch.action.scripting.ScriptingAction;
+import it.geosolutions.geobatch.action.scripting.ScriptingConfiguration;
+import it.geosolutions.geobatch.flow.event.ProgressListenerForwarder;
+import it.geosolutions.geobatch.flow.event.action.Action;
+import it.geosolutions.geobatch.flow.event.action.ActionException;
+import it.geosolutions.geobatch.geotiff.retile.GeotiffRetiler;
+import it.geosolutions.geobatch.imagemosaic.ImageMosaicCommand;
+import it.geosolutions.geobatch.lamma.meteosat.MeteosatUtils;
+import it.geosolutions.geobatch.lamma.meteosat.RGBPythonUtils;
+import it.geosolutions.geobatch.lamma.geonetwork.GeoNetworkUtils;
+import it.geosolutions.geobatch.lamma.geostore.GeoStoreUtils;
+
+import it.geosolutions.geonetwork.GNClient;
+import it.geosolutions.geostore.services.rest.GeoStoreClient;
+import it.geosolutions.tools.compress.file.Extract;
+import it.geosolutions.tools.freemarker.filter.FreeMarkerFilter;
+import it.geosolutions.tools.io.file.Collector;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.EventObject;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.WildcardFileFilter;
+
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
+
+    
+
+    /**
+     * Script Main "execute" function
+     **/
+public Map execute(Map argsMap) throws Exception {
+  
+        /**
+         * this is the list (a comma separated string) of prefixes present into
+         * the map. Each prefix represents a different mosaic for the Meteosat
+         * flow. Its settings should be set into the map as:<br>
+         * {prefix}{_setting}<br>
+         * where setting is one of the following:
+         * <ul>
+         * <li>_FILTER</li>
+         * <li>_SCRIPT</li>
+         * <li>_CALC</li>
+         * <li>_MOSAIC_DIR</li>
+         * <li>_STYLE</li>
+         * </ul>
+         */
+        final String PREFIX_LIST = "PREFIX_LIST";
+
+        /**
+         * The suffix to add to the prefix to obtain the MOSAIC_DIR KEY into the
+         * map this is the directory to use as mosaic base dir (the directory
+         * containing the mosaic)
+         */
+        final String MOSAIC_DIR = "_MOSAIC_DIR";
+        /**
+         * the style to apply into the mosaic
+         */
+        final String STYLE = "_STYLE";
+        /**
+         * the default workspace
+         */
+        final String WORKSPACE = "WORKSPACE";
+        /**
+         * the key to get the relative path (to the configDir) to load
+         * environment to call python
+         */
+        final String ENVIRONMENT_FILE = "ENV_FILE";
+        /**
+         * the key to get the GeoServer Url
+         */
+        final String GSURL = "GSURL";
+        /**
+         * the key to get the GeoServer user id
+         */
+        final String GSUID = "GSUID";
+        /**
+         * the key to get the GeoServer pass
+         */
+        final String GSPWD = "GSPWD";
+
+        final ScriptingConfiguration configuration = (ScriptingConfiguration)argsMap
+            .get(ScriptingAction.CONFIG_KEY);
+
+        boolean failIgnore = true;
+        // TODO
+        if (!configuration.isFailIgnored()) {
+            failIgnore = false;
+        }
+
+        final Map map = configuration.getProperties();
+
+        final File tempDir = (File)argsMap.get(ScriptingAction.TEMPDIR_KEY);
+        final File configDir = (File)argsMap.get(ScriptingAction.CONFIGDIR_KEY);
+        final ProgressListenerForwarder listenerForwarder = (ProgressListenerForwarder)argsMap
+            .get(ScriptingAction.LISTENER_KEY);
+        final List events = (List)argsMap.get(ScriptingAction.EVENTS_KEY);
+        if (events.size() != 1) {
+            ActionException ae = new ActionException(Action.class,
+                                                     "More than 1 argument encountered. We only need a zip file");
+            listenerForwarder.failed(ae);
+        }
+
+        // set workspace
+        String workspace = (String)map.get(WORKSPACE);
+        if (workspace == null) {
+            throw new ActionException(Action.class, "Unable to continue without a " + WORKSPACE
+                                                    + " defined, please check your configuration");
+        }
+
+        FileSystemEvent ev = (FileSystemEvent)events.remove(0);
+        // extract input
+        File channelsDir = Extract.extract(ev.getSource(), tempDir, true);
+
+        final Logger logger = LoggerFactory
+            .getLogger("it.geosolutions.geobatch.action.scripting.ScriptingAction.class");
+
+        // read env
+        final String envFileName = (String)map.get(ENVIRONMENT_FILE);
+        if (envFileName == null)
+            throw new IllegalArgumentException("The key " + ENVIRONMENT_FILE
+                                               + " property is not set, please fix the configuration.");
+
+        // used for geostore
+        final Queue<EventObject> queue = new LinkedList<EventObject>();
+
+        // read prefix list
+        final String prefixList = (String)map.get(PREFIX_LIST);
+        if (prefixList == null)
+            throw new IllegalArgumentException("The key " + PREFIX_LIST
+                                               + " property is not set, please fix the configuration.");
+        final String[] prefixes = prefixList.split(",");
+        for (String prefix : prefixes) {
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Doing stuff for prefix: " + prefix);
+            }
+
+            // TODO NOTE here tempDir is the directory where to find channels
+            // NOT the action getTempDir()
+            // ------------------------------------------------
+            final Collector c = new Collector(new WildcardFileFilter("NDVI*_*.tif"));
+            final File[] fileList = c.collect(channelsDir).toArray([new File("")]);// groovy->
+                                                                                  // .toArray([new
+                                                                                  // File("")]);
+            if (fileList.length == 0) {
+                final IllegalArgumentException iae = new IllegalArgumentException(
+                                                                                  "The passed folder "
+                                                                                      + channelsDir
+                                                                                      + " does not contain channel files in the correct form.");
+                listenerForwarder.failed(iae);
+                throw iae;
+            }
+            final String modelName = fileList[0].getName();
+            final String time = MeteosatUtils.getTime(modelName);
+            final File outFile = new File(channelsDir, prefix + "_" + time + ".tif");
+            // GeoStore
+            final File[] channels;
+            try {
+                // use workspace as GeoStore Category and resource
+                channels = RGBPythonUtils.getChannels(channelsDir, prefix, map);
+            } catch (Exception e) {
+                if (failIgnore) {
+                    if (logger != null && logger.isErrorEnabled()) {
+                        logger.error(e.getLocalizedMessage(), e);
+                    }
+                    continue;
+                } else {
+                    throw new ActionException(Action.class, e.getLocalizedMessage(), e.getCause());
+                }
+            }
+
+            if (channels.length > 1) { // call python channels to RGB process
+                final String[] args = RGBPythonUtils.buildArgs(configDir, channels, outFile, prefix, map);
+                final File props = new File(configDir, envFileName);
+                boolean ret = RGBPythonUtils.run(logger, props, null, args);
+
+                // if !success continue or break
+                if (!ret) {
+                    final String message = "Unable to get output from the python script process for prefix: "
+                                           + prefix;
+                    if (failIgnore) {
+                        logger.warn(message);
+                        continue;
+                    } else {
+                        // listenerForwarder.failed();
+                        logger.error(message);
+                        break;
+                    }
+                }
+            } else { // simply rename the tiff to publish it
+                // File inFile, File tiledTiffFile, double compressionRatio,
+                // String
+                // compressionType, int tileW, int tileH, boolean forceBigTiff)
+                // throws IOException {
+                GeotiffRetiler.reTile(channels[0], outFile, 0.7, "LZW", 256, 256, false);
+
+                // add-overview
+                MeteosatUtils.addo(outFile, map);
+            }
+
+            queue.add(new FileSystemEvent(outFile, FileSystemEventType.FILE_ADDED));
+        }
+
+        // if !success continue or break
+        if (queue == null || queue.isEmpty()) {
+            if (failIgnore) {
+                logger.error("Unable to get output ");
+            } else {
+                throw new ActionException(Action.class, "Unable to get output");
+            }
+        }
+
+        argsMap.put(ScriptingAction.EVENTS_KEY, queue);
+
+        argsMap = MeteosatUtils.ImageMosaic(argsMap);
+	
+	argsMap.put(ScriptingAction.EVENTS_KEY, argsMap.get(ScriptingAction.RETURN_KEY));
+
+        argsMap = MeteosatUtils.GeoNetworkAndGeoStore(argsMap);
+
+        listenerForwarder.completed();
+        return argsMap;
+}

@@ -1,0 +1,476 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FlowConfiguration>
+	<id>meteosat_msg2</id>
+	<description>Flow for Meteosat</description>
+	<name>meteosat</name>
+	
+	<corePoolSize>5</corePoolSize>
+	<maximumPoolSize>10</maximumPoolSize>
+	<keepAliveTime>3600</keepAliveTime> <!--seconds-->
+	<workQueueSize>100</workQueueSize>
+	
+	<autorun>true</autorun>
+	
+	<EventGeneratorConfiguration>
+		<wildCard>MSG2_*.*</wildCard>
+		<!--watchDirectory>meteosat_msg2/in</watchDirectory-->
+		<watchDirectory>/opt/ingestion/</watchDirectory>
+		<osType>OS_UNDEFINED</osType>
+		<eventType>FILE_ADDED</eventType>
+
+                  <!-- CRON: every 30 secs -->
+                  <interval>*/10 * * * * ?</interval>
+
+		<id>id</id>
+		<serviceID>fsEventGeneratorService</serviceID>
+	</EventGeneratorConfiguration>
+	
+	<EventConsumerConfiguration>
+	
+		<id>id</id>
+		
+		<performBackup>false</performBackup>
+		
+		<listenerId>Logger</listenerId>
+		<listenerId>Cumulator</listenerId>
+		
+		<ScriptingConfiguration>
+			<id>MeteosatScript</id>
+			<description>Groovy Script</description>
+			<name>meteosat_script</name>
+			
+			<listenerId>Logger</listenerId>
+			<listenerId>StatusAction</listenerId>
+			
+			<serviceID>ScriptingService</serviceID>
+			
+			<overrideConfigDir>../</overrideConfigDir>
+
+			<language>groovy</language>
+			<scriptFile>commons/meteosat.groovy</scriptFile>
+			<properties>
+				  <!-- xml template for translate-->
+				  <entry>
+				    <string>ENV_FILE</string>
+				    <!--relative to the confDir dir-->
+				    <string>commons/env.properties</string>
+				  </entry>
+				  <entry>
+				    <string>WORKSPACE</string>
+				    <string>MSG2</string>
+				  </entry>
+				  
+				  <entry>
+				    <string>GSPWD</string>
+				    <string>j6Knno8r</string>
+				  </entry>
+				  <entry>
+				    <string>GSUID</string>
+				    <string>admin</string>
+				  </entry>
+				  <entry>
+				    <string>GSURL</string>
+				    <!--string>http://localhost:8181/geoserver/</string-->
+				    <string>http://172.16.1.134:8080/geoserver</string>
+				  </entry>
+                  <entry>
+                    <string>TIME_REGEX</string>
+                    <string>[0-9]{8}T[0-9]{9}Z(\?!.\*[0-9]{8}T[0-9]{9}Z.\*)</string>
+                  </entry>
+                  <entry>
+                    <string>DATASTORE_PROPS</string>
+                    <string>commons/datastore.properties</string>
+                  </entry>
+
+				  
+				  <entry>
+				    <string>GNPWD</string>
+				    <string>j6Knno8r</string>
+				  </entry>
+				  <entry>
+				    <string>GNUID</string>
+				    <string>admin</string>
+				  </entry>
+				  <entry>
+				    <string>GNPRIV</string>
+				    <string>1_01</string>
+				  </entry>                   
+				  <entry>
+				    <string>GNCAT</string>
+				    <string>msgsecond</string>
+				  </entry>                     
+				  <entry>
+				    <string>GNURL</string>
+				    <!--string>http://localhost:8282/geonetwork/</string-->
+				    <string>http://172.16.1.136:8080/geonetwork</string>
+				  </entry>
+				  <entry>
+				    <string>GN_METADATA_TEMPLATE</string>
+				    <string>commons/gn_msg2_template.xml</string>
+				  </entry>
+				  
+				  
+				  <entry>
+				    <string>GSTPWD</string>
+				    <string>j6Knno8r</string>
+				  </entry>
+				  <entry>
+				    <string>GSTUID</string>
+				    <string>admin</string>
+				  </entry>
+				  <entry>
+				    <string>GSTURL</string>
+				    <!--string>http://localhost:8383/geostore/rest/</string-->
+				    <string>http://172.16.1.136:8181/geostore/rest/</string>
+				  </entry>
+				  <entry>
+				    <string>GST_METADATA_TEMPLATE</string>
+				    <string>commons/gst_msg_template.js</string>
+				  </entry>
+				  <!-- <entry>
+				    <string>GST_LAYER_TEMPLATE</string>
+				    <string>commons/gst_msg_layer_template.js</string>
+				  </entry> -->
+				  
+				  
+				  <entry>
+				    <string>PREFIX_LIST</string>
+				    <string>Airmass,NatColours,Dust,Channel_01,Channel_02,Channel_03,Channel_04,Channel_05,Channel_06,Channel_07,Channel_08,Channel_09,Channel_10,Channel_11,Channel_12</string>
+				  </entry>
+				  
+				  <!--     Airmass (night & day)
+				  R = Difference 05 - 06 (WV6.2 – WV7.3)
+				  G = Difference 08 – 09 (IR9.7 – IR10.8)
+				  B = Difference 05 inverted (WV6.2)
+				  Applications: Rapid Cyclogenesis, Jet Stream Analysis, PV Analysis -->
+				  <entry>
+				    <string>Airmass_FILTER</string>
+				    <string>*_WV_062_05*,*_WV_073_06*,*_IR_097_08*,*_IR_108_09*</string>
+				  </entry>
+				  <entry>
+				    <string>Airmass_CALC</string>
+				    <string>airmass</string>
+				  </entry>
+				  <entry>
+				    <string>Airmass_SCRIPT</string>
+				    <string>commons/createRGB_2.py</string>
+				  </entry>
+				  <entry>
+				    <string>Airmass_MOSAIC_DIR</string>
+				    <string>/opt/data/msg2/MSG2_Airmass</string>
+				  </entry>
+				  
+				  <!--     Day Natural Colors
+				  R = Channel 03 (NIR1.6)
+				  G = Channel 02 (VIS0.8)
+				  B = Channel 01 (VIS0.6)
+				  Applications: Vegetation, Dust, Smoke, Fog, Snow -->
+				  <entry>
+				    <string>NatColours_FILTER</string>
+				    <string>*_VIS006_01*,*_VIS008_02*,*_IR_016_03*</string>
+				  </entry>
+				  <entry>
+				    <string>NatColours_CALC</string>
+				    <string>NatColours</string>
+				  </entry>
+				  <entry>
+				    <string>NatColours_SCRIPT</string>
+				    <string>commons/createRGB_2.py</string>
+				  </entry>
+				  <entry>
+				    <string>NatColours_MOSAIC_DIR</string>
+				    <string>/opt/data/msg2/MSG2_NatColours</string>
+				  </entry>
+				  
+				  <!--     Day Microphysics
+				  R = Channel 02 (VIS0.8)
+				  G = Channel 04r (IR3.9, solar component)
+				  B = Channel 09 (IR10.8)
+				  Applications: Cloud Analysus, Convection, Fog, Snow, Fires
+				  
+					   Day Solar
+				  R = Channel 02 (VIS0.8)
+				  G = Channel 03 (NIR1.6)
+				  B = Channel 04r (IR3.9, solar component)
+				  Applications: Cloud Analysus, Convection, Fog, Snow, Fires
+				  
+					   Convective Storms
+				  R = Difference 05 - 06 (WV6.2 - WV7.3)
+				  G = Difference 04 - 09 (IR3.9* - IR10.8)
+				  B = Difference 03 - 01 (NIR1.6 - VIS0.6)
+				  *Note: CO2-corrected brightness temperature of channel 04 (IR3.9)
+				  Applications: Severe Storms
+				  
+					  HRV Clouds
+				  R = Channel 12 (HRV)
+				  G = Channel 12 (HRV)
+				  B = Channel 09i (IR10.8i)
+				  Applications: Clouds, Convection
+				  
+					  HRV Fog
+				  R = Channel 03 (NIR1.6)
+				  G = Channel 12 (HRV)
+				  B = Channel 12 (HRV)
+				  Applications: Snow, Fog
+				  
+					  HRV Severe Storms
+				  R = Channel 12 (HRV)
+				  G = Channel 12 (HRV)
+				  B = BTD 09-04 (IR10.8-IR3.9)
+				  Applications: Severe Storms
+				  -->
+				  
+				  <!--     Dust (night & day)
+				  R = Difference 10 - 09 (IR12.0 – IR10.8)
+				  G = Difference 09 – 07 (IR10.8 – IR8.7)
+				  B = Difference 09 (IR10.8)
+
+				  Applications: Dust (day and night), Contrails
+				  -->
+                    
+				  <entry>
+				    <string>Dust_FILTER</string>
+				    <string>*_IR_087_07*,*_IR_108_09*,*_IR_120_10*</string>
+				  </entry>
+				  <entry>
+				    <string>Dust_CALC</string>
+				    <string>Dust</string>
+				  </entry>
+				  <entry>
+				    <string>Dust_SCRIPT</string>
+				    <string>commons/createRGB_2.py</string>
+				  </entry>
+				  <entry>
+				    <string>Dust_MOSAIC_DIR</string>
+				    <string>/opt/data/msg2/MSG2_Dust</string>
+				  </entry>
+
+				  <!-- Channel_01 -->
+				  <entry>
+				    <string>Channel_01_FILTER</string>
+				    <string>*_VIS006_01*</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_01_STYLE</string>
+				    <string>msg2_channel_01</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_01_MOSAIC_DIR</string>
+				    <string>/opt/data/msg2/MSG2_Channel_01</string>
+				  </entry>
+                  
+				  <!-- Channel_02 -->
+				  <entry>
+				    <string>Channel_02_FILTER</string>
+				    <string>*_VIS008_02*</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_02_STYLE</string>
+				    <string>msg2_channel_02</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_02_MOSAIC_DIR</string>
+				    <string>/opt/data/msg2/MSG2_Channel_02</string>
+				  </entry>         
+
+				  <!-- Channel_03 -->
+				  <entry>
+				    <string>Channel_03_FILTER</string>
+				    <string>*_IR_016_03*</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_03_STYLE</string>
+				    <string>msg2_channel_03</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_03_MOSAIC_DIR</string>
+				    <string>/opt/data/msg2/MSG2_Channel_03</string>
+				  </entry>         
+
+				  <!-- Channel_04 -->
+				  <entry>
+				    <string>Channel_04_FILTER</string>
+				    <string>*_IR_039_04*</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_04_STYLE</string>
+				    <string>msg2_channel_04</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_04_MOSAIC_DIR</string>
+				    <string>/opt/data/msg2/MSG2_Channel_04</string>
+				  </entry>                    
+				  
+				  <!-- Channel_05 -->
+				  <entry>
+				    <string>Channel_05_FILTER</string>
+				    <string>*_WV_062_05*</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_05_STYLE</string>
+				    <string>msg2_channel_05</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_05_MOSAIC_DIR</string>
+				    <string>/opt/data/msg2/MSG2_Channel_05</string>
+				  </entry>
+				  
+				  <!-- Channel_06 -->
+				  <entry>
+				    <string>Channel_06_FILTER</string>
+				    <string>*_WV_073_06*</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_06_STYLE</string>
+				    <string>msg2_channel_06</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_06_MOSAIC_DIR</string>
+				    <string>/opt/data/msg2/MSG2_Channel_06</string>
+				  </entry>
+                  
+				  <!-- Channel_07 -->
+				  <entry>
+				    <string>Channel_07_FILTER</string>
+				    <string>*_IR_087_07*</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_07_STYLE</string>
+				    <string>msg2_channel_07</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_07_MOSAIC_DIR</string>
+				    <string>/opt/data/msg2/MSG2_Channel_07</string>
+				  </entry>      
+
+				  <!-- Channel_08 -->
+				  <entry>
+				    <string>Channel_08_FILTER</string>
+				    <string>*_IR_097_08*</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_08_STYLE</string>
+				    <string>msg2_channel_08</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_08_MOSAIC_DIR</string>
+				    <string>/opt/data/msg2/MSG2_Channel_08</string>
+				  </entry>                    
+
+				  <!-- Channel_09 -->
+				  <entry>
+				    <string>Channel_09_FILTER</string>
+				    <string>*_IR_108_09*</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_09_STYLE</string>
+				    <string>msg2_channel_09</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_09_MOSAIC_DIR</string>
+				    <string>/opt/data/msg2/MSG2_Channel_09</string>
+				  </entry>       
+
+				  <!-- Channel_10 -->
+				  <entry>
+				    <string>Channel_10_FILTER</string>
+				    <string>*_IR_120_10*</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_10_STYLE</string>
+				    <string>msg2_channel_10</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_10_MOSAIC_DIR</string>
+				    <string>/opt/data/msg2/MSG2_Channel_10</string>
+				  </entry>    
+
+				  <!-- Channel_11 -->
+				  <entry>
+				    <string>Channel_11_FILTER</string>
+				    <string>*_IR_134_11*</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_11_STYLE</string>
+				    <string>msg2_channel_11</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_11_MOSAIC_DIR</string>
+				    <string>/opt/data/msg2/MSG2_Channel_11</string>
+				  </entry>                    
+				  
+				  <!-- Channel_12 -->
+				  <entry>
+				    <string>Channel_12_FILTER</string>
+				    <string>*_HRV_12*</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_12_STYLE</string>
+				    <string>msg2_channel_12</string>
+				  </entry>
+				  <entry>
+				    <string>Channel_12_MOSAIC_DIR</string>
+				    <string>/opt/data/msg2/MSG2_Channel_12</string>
+				  </entry>
+				  
+				  <!--entry>
+				    <string>_FILTER</string>
+				    <string></string>
+				  </entry>
+				  <entry>
+				    <string>_CALC</string>
+				    <string></string>
+				  </entry>
+				  <entry>
+				    <string>_SCRIPT</string>
+				    <string></string>
+				  </entry>
+				  <entry>
+				    <string>_STYLE</string>
+				    <string></string>
+				  </entry>
+				  <entry>
+				    <string>_MOSAIC_DIR</string>
+				    <string></string>
+				  </entry-->
+
+                  <entry>
+                    <string>DELETE_GRANULES_DELTA_DAYS</string>
+                    <string>5</string>
+                  </entry>
+
+                  <entry>
+                    <string>DELETE_GRANULES_FROM_DISK</string>
+                    <string>true</string>
+                  </entry>
+
+                  <entry>
+                    <string>PERFORM_GEOSERVER_RESET</string>
+                    <string>false</string>
+                  </entry>
+				  
+			</properties>
+		</ScriptingConfiguration>
+        
+	</EventConsumerConfiguration>
+	
+	<ListenerConfigurations>
+		<LoggingProgressListener>
+			<serviceID>loggingListenerService</serviceID>
+			<id>Logger</id>
+			<loggerName>it.geosolutions.geobatch</loggerName>
+		</LoggingProgressListener>
+		
+		<CumulatingProgressListener>
+			<serviceID>cumulatingListenerService</serviceID>
+			<id>Cumulator</id>
+		</CumulatingProgressListener>
+		
+		<StatusProgressListener>
+			<serviceID>statusListenerService</serviceID>
+			<id>StatusAction</id>
+		</StatusProgressListener>
+		
+	</ListenerConfigurations>
+	
+</FlowConfiguration>

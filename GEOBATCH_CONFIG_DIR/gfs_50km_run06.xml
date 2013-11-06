@@ -1,0 +1,435 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FlowConfiguration>
+    <id>gfs_50km_run06</id>
+    <name>LaMMa GFS 50 km</name>
+    <description>Create images from netcdf publish on GeoServer and on GeoNetwork</description>
+
+    <corePoolSize>2</corePoolSize>
+    <maximumPoolSize>2</maximumPoolSize>
+    <keepAliveTime>1500</keepAliveTime>
+    <workQueueSize>100</workQueueSize>
+
+    <autorun>true</autorun>
+
+    <EventGeneratorConfiguration>
+        <!--<wildCard>*.grb</wildCard-->
+        <wildCard>*_gfs05*06.grb</wildCard>
+        <watchDirectory>/opt/ingestion/</watchDirectory>
+        <!--watchDirectory>gfs_50km_run00/in/</watchDirectory-->
+        <osType>OS_UNDEFINED</osType>
+        <eventType>FILE_ADDED</eventType>
+        <interval>*/10 * * * * ?</interval>
+		<!--interval>0 0/15 10-12 * * ?</interval-->
+        <id>id</id>
+        <serviceID>fsEventGeneratorService</serviceID>
+    </EventGeneratorConfiguration>
+    <EventConsumerConfiguration>
+        <id>LaMMa</id>
+
+        <listenerId>LaMMaLogger</listenerId>
+        <listenerId>LaMMaCumulator</listenerId>
+
+        <performBackup>false</performBackup>
+        <preserveInput>false</preserveInput>
+
+        <Netcdf2GeotiffConfiguration>
+            <listenerId>LaMMaLogger</listenerId>
+            <listenerId>LaMMaCumulator</listenerId>
+            <listenerId>LaMMaStatus</listenerId>
+
+            <overrideConfigDir>./</overrideConfigDir>
+
+            <layerParentDirectory>/opt/data/models/gfs_50km_run00/</layerParentDirectory>
+            <!--layerParentDirectory>/home/carlo/work/project/Lamma/trunk/lamma_2012/GEOBATCH_TEMP_DIR/gfs_50km_run00</layerParentDirectory-->
+
+            <crs>EPSG:4326</crs>
+            <envelope/>
+            <metocDictionaryPath>config/lamma-dictionary_gfs_50km.xml</metocDictionaryPath>
+
+            <flipY>false</flipY>
+            <halfPixelExtend>true</halfPixelExtend>            
+
+            <variables>
+                <string>Convective_Available_Potential_Energy_surface</string>
+                <string>Convective_inhibition_surface</string>
+                <string>Geopotential_height_isobaric</string>
+                <string>Geopotential_height_HTFL</string>
+                <string>Geopotential_height_surface</string>
+                <string>Geopotential_height_potential_vorticity_surface</string>
+                <string>Pressure_reduced_to_MSL_msl</string>
+                <string>Relative_humidity_isobaric</string>
+                <string>Relative_humidity_height_above_ground</string>
+                <string>Surface_wind_gust_surface</string>
+                <string>Temperature_isobaric</string>
+                <string>Temperature_height_above_ground</string>
+                <string>Temperature_surface</string>
+                <string>u-component_of_wind_height_above_ground</string>
+                <string>v-component_of_wind_height_above_ground</string>
+                <string>u-component_of_wind_isobaric</string>
+                <string>v-component_of_wind_isobaric</string>                
+                <string>Land_cover_land1_sea0_surface</string>
+                <string>Volumetric_soil_moisture_content_layer_between_two_depths_below_surface_layer</string>
+                <string>Temperature_layer_between_two_depths_below_surface_layer</string>
+            </variables>
+
+            <serviceID>Netcdf2GeotiffService</serviceID>
+            <id>LaMMagfsind_a2</id>
+            <description>LaMMagfsind NetCDFCFGeodetic2GeoTIFFs</description>
+            <name>LaMMagfsind_a2</name>
+        </Netcdf2GeotiffConfiguration>
+
+        <ScriptingConfiguration>
+            <id>wind_height_above_ground__script</id>
+            <description>preprocessing Groovy Script</description>
+            <name>preprocessingGroovyScript</name>
+
+            <listenerId>LaMMaLogger</listenerId>
+            <listenerId>LaMMaCumulator</listenerId>
+            <listenerId>LaMMaStatus</listenerId>
+
+            <serviceID>ScriptingService</serviceID>
+
+            <overrideConfigDir>../</overrideConfigDir>
+
+            <language>groovy</language>
+            <scriptFile>commons/wind.groovy</scriptFile>
+
+            <properties>
+                <entry>
+                    <string>defaultStyle</string>
+                    <string>wind_arrow_palette</string>
+                </entry>
+                <entry>
+                    <string>imageNameRegex</string>
+                    <string>[/A-z0-9]+[\-][/A-z0-9]+_(.*)\.tiff</string>
+                </entry>
+                <entry>
+                    <string>imcRegex</string>
+                    <string>.*-component_of_wind_height_above_ground_.*</string>
+                </entry>
+                <entry>
+                    <string>outDirName</string>
+                    <string>Wind_height_above_ground</string>
+                </entry>
+                <entry>
+                    <string>prefixRegex</string>
+                    <string>(gfs_50km_).*</string>
+                </entry>
+                <entry>
+                    <string>suffixRegex</string>
+                    <string>.*(_[0-9]+T[0-9]+Z)</string>
+                </entry>
+            </properties>
+
+        </ScriptingConfiguration>
+        <ScriptingConfiguration>
+            <id>wind_script</id>
+            <description>wind_script</description>
+            <name>wind_script</name>			
+
+            <listenerId>LaMMaLogger</listenerId>
+            <listenerId>LaMMaCumulator</listenerId>
+            <listenerId>LaMMaStatus</listenerId>
+
+            <serviceID>ScriptingService</serviceID>
+
+            <overrideConfigDir>../</overrideConfigDir>
+
+            <language>groovy</language>
+            <scriptFile>commons/wind.groovy</scriptFile>
+
+            <properties>
+                <entry>
+                    <string>defaultStyle</string>
+                    <string>garrows</string>
+                </entry>
+                <entry>
+                    <string>imageNameRegex</string>
+                    <string>[/A-z0-9]+[\-][/A-z0-9]+_(.*)\.tiff</string>
+                </entry>
+                <entry>
+                    <string>imcRegex</string>
+                    <string>.*-component_of_wind_isobaric_[0-9]+.*</string>
+                </entry>
+                <entry>
+                    <string>outDirName</string>
+                    <string>Wind</string>
+                </entry>
+                <entry>
+                    <string>prefixRegex</string>
+                    <string>(gfs_50km_).*</string>
+                </entry>
+                <entry>
+                    <string>suffixRegex</string>
+                    <string>.*(_[0-9]+T[0-9]+Z)</string>
+                </entry>
+            </properties>
+        </ScriptingConfiguration>
+
+        <ImageMosaicActionConfiguration>
+            <overrideConfigDir>./</overrideConfigDir>
+
+            <listenerId>LaMMaLogger</listenerId>
+            <listenerId>LaMMaCumulator</listenerId>
+            <listenerId>LaMMaStatus</listenerId>
+
+            <crs>EPSG:4326</crs>
+
+            <envelope/>
+            <dataTransferMethod>EXTERNAL</dataTransferMethod>
+            <geoserverUID>admin</geoserverUID>
+            <!--geoserverPWD>geoserver</geoserverPWD>
+			<geoserverURL>http://localhost:8181/geoserver</geoserverURL-->
+            <geoserverPWD>j6Knno8r</geoserverPWD>
+            <geoserverURL>http://172.16.1.134:8080/geoserver</geoserverURL>
+            <defaultNamespace>GFS_50KM_RUN06</defaultNamespace>
+            <defaultStyle>raster</defaultStyle>
+
+            <wmsPath>/</wmsPath>
+            <backgroundValue>NaN</backgroundValue>
+            <outputTransparentColor/>
+            <inputTransparentColor/>
+            <allowMultithreading>true</allowMultithreading>
+            <useJaiImageRead>false</useJaiImageRead>
+
+            <tileSizeH>256</tileSizeH>
+            <tileSizeW>256</tileSizeW>
+            
+            <NativeMinBoundingBoxX>-30</NativeMinBoundingBoxX>
+            <NativeMinBoundingBoxY>25</NativeMinBoundingBoxY>
+            <NativeMaxBoundingBoxX>45</NativeMaxBoundingBoxX>
+            <NativeMaxBoundingBoxY>70</NativeMaxBoundingBoxY>
+            <latLonMinBoundingBoxX>-30</latLonMinBoundingBoxX>
+            <latLonMinBoundingBoxY>25</latLonMinBoundingBoxY>
+            <latLonMaxBoundingBoxX>45</latLonMaxBoundingBoxX>
+            <latLonMaxBoundingBoxY>70</latLonMaxBoundingBoxY>
+            
+            <!--NONE, REPROJECT_TO_DECLARED, FORCE_DECLARED-->
+            <projectionPolicy>NONE</projectionPolicy>
+            <!-- METADATA -->
+            <timeDimEnabled>true</timeDimEnabled>
+
+            <!-- LIST, CONTINUOUS_INTERVAL, DISCRETE_INTERVAL -->
+            <!-- timePresentationMode>CONTINUOUS_INTERVAL</timePresentationMode -->
+            <timePresentationMode>DISCRETE_INTERVAL</timePresentationMode>
+            <timeDiscreteInterval>21600000</timeDiscreteInterval>
+
+            <elevDimEnabled>true</elevDimEnabled>
+            <elevationPresentationMode>LIST</elevationPresentationMode>
+            <!--  <dirName>DIR</dirName>-->
+            <styles/>
+
+            <!--<datastorePropertiesPath>config/datastore.properties</datastorePropertiesPath>-->
+            <timeRegex>[0-9]{8}T[0-9]{9}Z(\?!.\*[0-9]{8}T[0-9]{9}Z.\*)</timeRegex>
+            <elevationRegex><![CDATA[(?<=_)(\\d{4}\\.\\d{3})(?=_)]]></elevationRegex>
+
+            <serviceID>ImageMosaicGeneratorService</serviceID>
+            <id>ImageMosaicService</id>
+            <description>ImageMosaicService</description>
+            <name>ImageMosaicService</name>
+        </ImageMosaicActionConfiguration> 
+
+        <ScriptingConfiguration>
+			<id>Script</id>
+			<description>Groovy Script</description>
+			<name>script</name>
+			
+		        <listenerId>LaMMaLogger</listenerId>
+			<listenerId>LaMMaCumulator</listenerId>
+			<listenerId>LaMMaStatus</listenerId>
+			
+			<serviceID>ScriptingService</serviceID>
+			
+			<overrideConfigDir>../</overrideConfigDir>
+
+			<language>groovy</language>
+			<scriptFile>commons/GeoNetworkAndGeoStore.groovy</scriptFile>
+			<properties>
+				  <entry>
+				    <string>WORKSPACE</string>
+				    <string>GFS_50KM_RUN06</string>
+				  </entry>
+				  <entry>
+				    <string>GNPRIV</string>
+				    <string>1_0156</string>
+				  </entry>
+				  <entry>
+				    <string>GNCAT</string>
+				    <string>g50</string>
+				  </entry>                   
+				  <entry>
+				    <string>GNPWD</string>
+				    <string>j6Knno8r</string>
+				  </entry>
+				  <entry>
+				    <string>GNUID</string>
+				    <string>admin</string>
+				  </entry>
+				  <entry>
+				    <string>GNURL</string>
+				    <string>http://172.16.1.136:8080/geonetwork</string>
+				  </entry>
+				  
+				  <entry>
+				    <string>GN_METADATA_TEMPLATE</string>
+				    <string>commons/gn_gfs50_RUN06_template.xml</string>
+				  </entry>
+				  
+				  
+				  <entry>
+				    <string>GSTPWD</string>
+				    <string>j6Knno8r</string>
+				  </entry>
+				  <entry>
+				    <string>GSTUID</string>
+				    <string>admin</string>
+				  </entry>
+				  <entry>
+				    <string>GSTURL</string>
+				    <string>http://172.16.1.136:8181/geostore/rest/</string>
+				  </entry>
+				  <entry>
+				    <string>GST_METADATA_TEMPLATE</string>
+				    <string>commons/gst_template.js</string>
+				  </entry>
+				  <entry>
+				    <string>GST_LAYER_TEMPLATE</string>
+				    <string>commons/gst_msg_layer_template.js</string>
+				  </entry>
+			</properties>
+		</ScriptingConfiguration>
+
+		<ScriptingConfiguration>
+			<id>MeteosatScript</id>
+			<description>Groovy Script</description>
+			<name>meteosat_script</name>
+			
+			<listenerId>Logger</listenerId>
+			<listenerId>StatusAction</listenerId>
+			
+			<serviceID>ScriptingService</serviceID>
+			
+			<overrideConfigDir>../</overrideConfigDir>
+
+			<language>groovy</language>
+			<scriptFile>commons/copy_tif.groovy</scriptFile>
+			<properties>
+				  <entry>
+				    <string>MODELS</string>
+				    <string>gfs_50km_run06</string>
+				  </entry>             
+				  <entry>
+				    <string>SCRIPT</string>
+				    <string>/opt/geobatch/conf/gfs_50km_run06/../commons/copia_tif.py</string>
+				  </entry>            
+				  <entry>
+				    <string>ENV_FILE</string>
+				    <string>commons/env.properties</string>
+				  </entry>            
+            </properties>
+		</ScriptingConfiguration>  
+
+        <!--XstreamConfiguration>
+			<serviceID>XstreamGeneratorService</serviceID>
+			<id>XstreamGeneratorService</id>
+			<description>Xstream action</description>
+			<name>XstreamConfiguration</name>
+			
+			<overrideConfigDir>./</overrideConfigDir>
+		  
+			<dirty>false</dirty>
+
+		        <listenerId>LaMMaLogger</listenerId>
+			<listenerId>LaMMaCumulator</listenerId>
+			<listenerId>LaMMaStatus</listenerId>
+
+			<failIgnored>false</failIgnored>
+		  
+			<output>out/</output>
+		</XstreamConfiguration>
+		<FreeMarker>
+			<serviceID>FreeMarkerGeneratorService</serviceID>
+			<id>FreeMarkerGeneratorService</id>
+			<description>description</description>
+			<name>FreeMarkerConfiguration</name>
+			
+			<overrideConfigDir>./</overrideConfigDir>
+		  
+			<dirty>false</dirty>
+
+		        <listenerId>LaMMaLogger</listenerId>
+			<listenerId>LaMMaCumulator</listenerId>
+			<listenerId>LaMMaStatus</listenerId>
+
+			<failIgnored>false</failIgnored>
+		  
+			<input>config/template.xml</input>
+			<output>out/</output>
+			<nToN>true</nToN>
+		</FreeMarker>
+		<Geonetwork>
+			<serviceID>GeonetworkGeneratorService</serviceID>
+			<id>GeonetworkGeneratorService</id>
+			<name>GeonetworkConfiguration</name>
+			<description>description</description>
+
+		        <listenerId>LaMMaLogger</listenerId>
+			<listenerId>LaMMaCumulator</listenerId>
+			<listenerId>LaMMaStatus</listenerId>
+			
+			<dirty>false</dirty>
+			<failIgnored>false</failIgnored>
+		  
+			<overrideConfigDir>./</overrideConfigDir>
+
+			
+			<geonetworkServiceURL>http://172.16.1.136:8080/geonetwork</geonetworkServiceURL>
+			<loginPassword>j6Knno8r</loginPassword>
+			<loginUsername>admin</loginUsername>
+			
+			<onlyMetadataInput>true</onlyMetadataInput>
+			<group>1</group>
+			<category>_none_</category>
+			<styleSheet>_none_</styleSheet>
+			<validate>false</validate>
+		</Geonetwork-->
+
+        <!--GeoServerReloadConfiguration>
+			<serviceID>GeoServerReloadService</serviceID>
+			<id>GeoServerReloadAction</id>
+			<name>GeoServerReloadAction</name>
+			<description>GeoServerReload</description>
+
+		        <listenerId>LaMMaLogger</listenerId>
+			<listenerId>LaMMaCumulator</listenerId>
+			<listenerId>LaMMaStatus</listenerId>
+			
+			<dirty>false</dirty>
+			<failIgnored>false</failIgnored>
+		  
+
+			<geoserverList>/opt/GEOBATCH_DATA_DIR/commons/GeoServerList.xml</geoserverList>
+			
+			<executorSize>10</executorSize>
+			
+			<overrideConfigDir>./</overrideConfigDir>
+			
+		</GeoServerReloadConfiguration-->
+
+    </EventConsumerConfiguration>
+    <ListenerConfigurations>
+        <LoggingProgressListener>
+            <serviceID>loggingListenerService</serviceID>
+            <id>LaMMaLogger</id>
+            <loggerName>it.geosolutions.geobatch</loggerName>
+        </LoggingProgressListener>
+        <CumulatingProgressListener>
+            <serviceID>cumulatingListenerService</serviceID>
+            <id>LaMMaCumulator</id>
+        </CumulatingProgressListener>
+        <StatusProgressListener>
+            <serviceID>statusListenerService</serviceID>
+            <id>LaMMaStatus</id>
+        </StatusProgressListener>
+    </ListenerConfigurations>
+</FlowConfiguration>

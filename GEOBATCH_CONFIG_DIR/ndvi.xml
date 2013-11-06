@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FlowConfiguration>
+	<id>ndvi</id>
+	<description>Flow for Meteosat</description>
+	<name>meteosat</name>
+	
+	<corePoolSize>5</corePoolSize>
+	<maximumPoolSize>10</maximumPoolSize>
+	<keepAliveTime>3600</keepAliveTime> <!--seconds-->
+	<workQueueSize>100</workQueueSize>
+	
+	<autorun>true</autorun>
+	
+	<EventGeneratorConfiguration>
+		<wildCard>NDVI_*.*</wildCard>
+		<!--watchDirectory>meteosat_msg1/in</watchDirectory-->
+		<watchDirectory>/opt/ingestion/</watchDirectory>
+		<osType>OS_UNDEFINED</osType>
+		<eventType>FILE_ADDED</eventType>
+
+                  <!-- CRON: every 10 secs -->
+                  <interval>*/10 * * * * ?</interval>
+                  <!--interval>0 30 5 * * ?</interval-->
+
+		<id>id</id>
+		<serviceID>fsEventGeneratorService</serviceID>
+	</EventGeneratorConfiguration>
+	
+	<EventConsumerConfiguration>
+	
+		<id>id</id>
+		
+		<performBackup>true</performBackup>
+		
+		<listenerId>Logger</listenerId>
+		<listenerId>Cumulator</listenerId>
+		
+		<ScriptingConfiguration>
+			<id>MeteosatScript</id>
+			<description>Groovy Script</description>
+			<name>meteosat_script</name>
+            <failIgnored>true</failIgnored>
+			<listenerId>Logger</listenerId>
+			<listenerId>StatusAction</listenerId>
+			
+			<serviceID>ScriptingService</serviceID>
+
+			<overrideConfigDir>../</overrideConfigDir>
+
+			<language>groovy</language>
+			<scriptFile>commons/ndvi.groovy</scriptFile>
+			<properties>
+				  <!-- xml template for translate-->
+				  <entry>
+				    <string>ENV_FILE</string>
+				    <!--relative to the confDir dir-->
+				    <string>commons/env.properties</string>
+				  </entry>
+				  <entry>
+				    <string>WORKSPACE</string>
+				    <string>NDVI</string>
+				  </entry>
+				  <entry>
+				    <string>GSPWD</string>
+				    <string>j6Knno8r</string>
+				  </entry>
+				  <entry>
+				    <string>GSUID</string>
+				    <string>admin</string>
+				  </entry>
+				  <entry>
+				    <string>GSURL</string>
+				    <!--string>http://localhost:8181/geoserver/</string-->
+				    <string>http://172.16.1.134:8080/geoserver</string>
+				  </entry>
+                  <entry>
+                    <string>TIME_REGEX</string>
+                    <string>[0-9]{8}T[0-9]{9}Z(\?!.\*[0-9]{8}T[0-9]{9}Z.\*)</string>
+                  </entry>
+                  <entry>
+                    <string>DATASTORE_PROPS</string>
+                    <string>commons/datastore.properties</string>
+                  </entry>
+
+				  
+				  <entry>
+				    <string>GNPWD</string>
+				    <string>j6Knno8r</string>
+				  </entry>
+				  <entry>
+				    <string>GNUID</string>
+				    <string>admin</string>
+				  </entry>
+				  <entry>
+				    <string>GNPRIV</string>
+				    <string>1_0156</string>
+				  </entry>
+				  <entry>
+				    <string>GNCAT</string>
+				    <string>ndvi</string>
+				  </entry>                  
+				  <entry>
+				    <string>GNURL</string>
+				    <!--string>http://localhost:8282/geonetwork/</string-->
+				    <string>http://172.16.1.136:8080/geonetwork</string>
+				  </entry>
+				  <entry>
+				    <string>GN_METADATA_TEMPLATE</string>
+				    <string>commons/gn_ndvi_template.xml</string>
+				  </entry>
+				  
+				  
+				  <!--entry>
+				    <string>GSTPWD</string>
+				    <string>j6Knno8r</string>
+				  </entry>
+				  <entry>
+				    <string>GSTUID</string>
+				    <string>admin</string>
+				  </entry>
+				  <entry>
+				    <string>GSTURL</string>
+				    <string>http://172.16.1.136:8181/geostore/rest/</string>
+				  </entry>
+				  <entry>
+				    <string>GST_METADATA_TEMPLATE</string>
+				    <string>commons/gst_msg_template.js</string>
+				  </entry>
+				  <entry>
+				    <string>GST_LAYER_TEMPLATE</string>
+				    <string>commons/gst_msg_layer_template.js</string>
+				  </entry-->
+                  
+				  <entry>
+				    <string>PREFIX_LIST</string>
+				    <string>NDVI</string>
+				  </entry>
+				  
+				  <!--entry>
+				    <string>_FILTER</string>
+				    <string></string>
+				  </entry>
+				  <entry>
+				    <string>_CALC</string>
+				    <string></string>
+				  </entry>
+				  <entry>
+				    <string>_SCRIPT</string>
+				    <string></string>
+				  </entry>
+				  <entry>
+				    <string>_STYLE</string>
+				    <string></string>
+				  </entry-->
+				  <entry>
+				    <string>NDVI_FILTER</string>
+				    <string>*_NDVI*</string>
+				  </entry>
+				  <entry>
+				    <string>NDVI_STYLE</string>
+				    <string>ndvi</string>
+				  </entry>                  
+				  <entry>
+				    <string>NDVI_MOSAIC_DIR</string>
+				    <string>/opt/data/NDVI/NDVI_2013</string>
+				  </entry>
+
+                                  <!--entry>
+                                    <string>DELETE_GRANULES_DELTA_DAYS</string>
+                                    <string>3</string>
+                                  </entry>
+
+                                  <entry>
+                                    <string>DELETE_GRANULES_FROM_DISK</string>
+                                    <string>true</string>
+                                  </entry-->
+
+                                  <entry>
+                                    <string>PERFORM_GEOSERVER_RESET</string>
+                                    <string>false</string>
+                                  </entry>
+				  
+			</properties>
+		</ScriptingConfiguration>
+		
+	</EventConsumerConfiguration>
+	
+	<ListenerConfigurations>
+		<LoggingProgressListener>
+			<serviceID>loggingListenerService</serviceID>
+			<id>Logger</id>
+			<loggerName>it.geosolutions.geobatch</loggerName>
+		</LoggingProgressListener>
+		
+		<CumulatingProgressListener>
+			<serviceID>cumulatingListenerService</serviceID>
+			<id>Cumulator</id>
+		</CumulatingProgressListener>
+		
+		<StatusProgressListener>
+			<serviceID>statusListenerService</serviceID>
+			<id>StatusAction</id>
+		</StatusProgressListener>
+		
+	</ListenerConfigurations>
+	
+</FlowConfiguration>

@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FlowConfiguration>
+	
+	<id>radar</id>
+	<description>radar</description>
+	<name>radar</name>
+	
+	<corePoolSize>5</corePoolSize>
+	<maximumPoolSize>10</maximumPoolSize>
+	<keepAliveTime>3600</keepAliveTime> <!--seconds-->
+	<workQueueSize>100</workQueueSize>
+	
+	<autorun>true</autorun>
+    
+	<EventGeneratorConfiguration>
+		<wildCard>RADAR*.*</wildCard>
+		<watchDirectory>/opt/ingestion/</watchDirectory>
+		<osType>OS_UNDEFINED</osType>
+		<eventType>FILE_ADDED</eventType>
+
+                  <!-- CRON: every 30 secs -->
+                  <interval>*/10 * * * * ?</interval>
+
+		<id>id</id>
+		<serviceID>fsEventGeneratorService</serviceID>
+	</EventGeneratorConfiguration>
+    
+	<EventConsumerConfiguration>
+		<id>extract</id>
+	
+		<performBackup>false</performBackup>
+		
+		<listenerId>Logger</listenerId>
+		<listenerId>Cumulator</listenerId>
+		
+		
+		<ScriptingConfiguration>
+			<id>RadarScript</id>
+			<description>Radar groovy script</description>
+			<name>radar_script</name>
+<failIgnored>true</failIgnored>
+			<listenerId>Logger</listenerId>
+			<listenerId>StatusAction</listenerId>
+			
+			<serviceID>ScriptingService</serviceID>
+			
+			<overrideConfigDir>../</overrideConfigDir>
+
+			<language>groovy</language>
+			<scriptFile>commons/radar.groovy</scriptFile>
+			<properties>
+			  
+				  <entry>
+				    <string>WORKSPACE</string>
+				    <string>RADAR</string>
+				  </entry>
+				  
+				  <entry>
+				    <string>GSPWD</string>
+				    <string>j6Knno8r</string>
+				  </entry>
+				  <entry>
+				    <string>GSUID</string>
+				    <string>admin</string>
+				  </entry>
+				  <entry>
+				    <string>GSURL</string>
+				    <string>http://172.16.1.134:8080/geoserver</string>
+				  </entry>
+				  
+				  <entry>
+				    <string>TIME_REGEX</string>
+				    <string>[0-9]{8}T[0-9]{9}Z(\?!.\*[0-9]{8}T[0-9]{9}Z.\*)</string>
+				  </entry>
+				  <entry>
+				    <string>DATASTORE_PROPS</string>
+				    <string>commons/datastore.properties</string>
+				  </entry>
+				  <!--entry>
+				    <string>ELEV_REGEX</string>
+				    <string>[0-9]{1,4}</string>
+				  </entry-->
+				  
+				  
+				  <entry>
+				    <string>GNPWD</string>
+				    <string>j6Knno8r</string>
+				  </entry>
+				  <entry>
+				    <string>GNUID</string>
+				    <string>admin</string>
+				  </entry>
+				  <entry>
+				    <string>GNPRIV</string>
+				    <string>1_01</string>
+				  </entry>                   
+				  <entry>
+				    <string>GNCAT</string>
+				    <string>radar</string>
+				  </entry>                     
+				  <entry>
+				    <string>GNURL</string>
+				    <string>http://172.16.1.136:8080/geonetwork</string>
+				  </entry>
+				  <entry>
+				    <string>GN_METADATA_TEMPLATE</string>
+				    <string>commons/gn_radar_template.xml</string>
+				  </entry>
+				  
+				  <!--entry>
+				    <string>GSTPWD</string>
+				    <string>j6Knno8r</string>
+				  </entry>
+				  <entry>
+				    <string>GSTUID</string>
+				    <string>admin</string>
+				  </entry>
+				  <entry>
+				    <string>GSTURL</string>
+				    <string>http://172.16.1.136:8181/geostore/rest/</string>
+				  </entry>
+				  <entry>
+				    <string>GST_METADATA_TEMPLATE</string>
+				    <string>commons/gst_radar_template.js</string>
+				  </entry-->
+				<!-- no update will be performed -->
+				  <!--entry>
+				    <string>GST_LAYER_TEMPLATE</string>
+				    <string>commons/gst_radar_layer_template.js</string>
+				  </entry-->
+				  
+				  <entry>
+				    <string>PREFIX_LIST</string>
+				    <string>CAPPI,SRI,SRT,VMI</string>
+				  </entry>
+				  
+				  <entry>
+				    <string>CAPPI_ELEV_REGEX</string>
+				    <string><![CDATA[(?<=_)(\\d{4})(?=_)]]></string>
+				  </entry>
+				  <entry>
+				    <string>CAPPI_MOSAIC_DIR</string>
+				    <string>/opt/data/CAPPI</string>
+				  </entry>
+				  
+				  
+				  <entry>
+				    <string>SRI_MOSAIC_DIR</string>
+				    <string>/opt/data/SRI</string>
+				  </entry>
+				  
+				  <entry>
+				    <string>SRT_MOSAIC_DIR</string>
+				    <string>/opt/data/SRT</string>
+				  </entry>
+				  
+				  <entry>
+				    <string>VMI_MOSAIC_DIR</string>
+				    <string>/opt/data/VMI</string>
+				  </entry>
+				  
+                                  <entry>
+                                    <string>DELETE_GRANULES_DELTA_DAYS</string>
+                                    <string>5</string>
+                                  </entry>
+
+                                  <entry>
+                                    <string>DELETE_GRANULES_FROM_DISK</string>
+                                    <string>true</string>
+                                  </entry>
+
+                                  <entry>
+                                    <string>PERFORM_GEOSERVER_RESET</string>
+                                    <string>false</string>
+                                  </entry>
+				  
+			</properties>
+		</ScriptingConfiguration>
+		
+	</EventConsumerConfiguration>
+
+	<ListenerConfigurations>
+		<LoggingProgressListener>
+			<serviceID>loggingListenerService</serviceID>
+			<id>Logger</id>
+			<loggerName>it.geosolutions.geobatch</loggerName>
+		</LoggingProgressListener>
+		
+		<CumulatingProgressListener>
+			<serviceID>cumulatingListenerService</serviceID>
+			<id>Cumulator</id>
+		</CumulatingProgressListener>
+		
+		<StatusProgressListener>
+			<serviceID>statusListenerService</serviceID>
+			<id>StatusAction</id>
+		</StatusProgressListener>
+		
+	</ListenerConfigurations>
+	
+</FlowConfiguration>
