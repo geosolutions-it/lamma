@@ -397,13 +397,45 @@ public class MeteosatUtils {
             final String time=splittedName[1].substring(0, 8) + "T" + splittedName[1].substring(8) + "00000Z";
             return new File(inFile.getParent(),"SRI_"+time+".tif");
           
-        } else if (prefix.equalsIgnoreCase("SRT")) {
+        } else if (prefix.equalsIgnoreCase("SRT1")) {
 
             // f.e.: inFile.getName() -> SRT.1_201109220215.tif
             // return SRT.1_20110922T021500000Z.tif
             final String splittedName[]=name.split("_");
             final String time=splittedName[1].substring(0, 8) + "T" + splittedName[1].substring(8) + "00000Z";
-            return new File(inFile.getParent(),"SRT_"+time+".tif");
+            return new File(inFile.getParent(),"SRT1_"+time+".tif");
+          
+        } else if (prefix.equalsIgnoreCase("SRT3")) {
+
+            // f.e.: inFile.getName() -> SRT.1_201109220215.tif
+            // return SRT.1_20110922T021500000Z.tif
+            final String splittedName[]=name.split("_");
+            final String time=splittedName[1].substring(0, 8) + "T" + splittedName[1].substring(8) + "00000Z";
+            return new File(inFile.getParent(),"SRT3_"+time+".tif");
+          
+        } else if (prefix.equalsIgnoreCase("SRT6")) {
+
+            // f.e.: inFile.getName() -> SRT.1_201109220215.tif
+            // return SRT.1_20110922T021500000Z.tif
+            final String splittedName[]=name.split("_");
+            final String time=splittedName[1].substring(0, 8) + "T" + splittedName[1].substring(8) + "00000Z";
+            return new File(inFile.getParent(),"SRT6_"+time+".tif");
+          
+        } else if (prefix.equalsIgnoreCase("SRT12")) {
+
+            // f.e.: inFile.getName() -> SRT.1_201109220215.tif
+            // return SRT.1_20110922T021500000Z.tif
+            final String splittedName[]=name.split("_");
+            final String time=splittedName[1].substring(0, 8) + "T" + splittedName[1].substring(8) + "00000Z";
+            return new File(inFile.getParent(),"SRT12_"+time+".tif");
+          
+        } else if (prefix.equalsIgnoreCase("SRT24")) {
+
+            // f.e.: inFile.getName() -> SRT.1_201109220215.tif
+            // return SRT.1_20110922T021500000Z.tif
+            final String splittedName[]=name.split("_");
+            final String time=splittedName[1].substring(0, 8) + "T" + splittedName[1].substring(8) + "00000Z";
+            return new File(inFile.getParent(),"SRT24_"+time+".tif");
           
         } else if (prefix.equalsIgnoreCase("VMI")) {
           
