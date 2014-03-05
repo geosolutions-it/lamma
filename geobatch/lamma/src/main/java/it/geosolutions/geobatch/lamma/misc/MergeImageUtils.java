@@ -467,7 +467,15 @@ public class MergeImageUtils {
 	public double getDirection(double valueU, double valueV) {
 		
 		final double direction=270 - ((180 / Math.PI) * Math.atan2(valueV, valueU));
-		return direction;
+		final double newDirection;
+		
+		if(direction>360 && direction<=450){
+			newDirection = direction - 360;
+		}else{
+			newDirection = direction;
+		}
+		
+		return newDirection;
 		/*final double direction=(180 / Math.PI) * Math.atan2(valueU,valueV);
 		final double newDirection;
 		
